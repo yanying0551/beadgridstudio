@@ -52,7 +52,7 @@ const pngDialog = required<HTMLDialogElement>('pngDialog');
 
 let grid: Grid = createGrid(24);
 let tool: Tool = 'paint';
-let selectedColor = COLORS[0][1];
+let selectedColor: string = COLORS[0][1];
 let selectedColorName: string = COLORS[0][0];
 let undoStack: Grid[] = [];
 let redoStack: Grid[] = [];

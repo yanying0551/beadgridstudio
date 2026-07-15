@@ -3,10 +3,27 @@
 > Single source of truth for scope, gates, status, evidence, and handoffs.
 
 ## Status
-- Overall: IN PROGRESS
-- Current gate: Discovery → PRD / Route Contract
+- Overall: NEEDS REVIEW
+- Current gate: Local MVP implementation / verification
 - Production launch: BLOCKED
 - Last updated: 2026-07-15
+
+## Latest implementation evidence
+- Existing Vite + TypeScript prototype was recovered from untracked files.
+- Added domain/runtime tests; grid suite was observed passing 13/13 before runtime implementation.
+- `src/runtime.test.ts` was observed RED because `runtime.ts` was absent; `runtime.ts` was then implemented.
+- `tsc --noEmit`: PASS after explicitly typing mutable selected-color state.
+- `npm audit --omit=dev`: PASS, 0 production vulnerabilities.
+- Full post-implementation Vitest run: UNVERIFIED — worker was blocked by concurrent host Vitest processes and later terminated.
+- Vite production bundle: UNVERIFIED — TypeScript phase passed, Vite phase did not complete within the verification window.
+- Browser/mobile smoke test: NOT RUN.
+
+## Verification blockers / known issues
+- P0: A clean full test and production build run is still required before GO.
+- P1: `runtime.drawPng` has deterministic tests, but UI export currently uses a separate circle-rendering implementation; unify the paths before claiming export coverage.
+- P1: Runtime persistence/history helpers and UI state handling partially duplicate one another; integration review remains required.
+- P1: Privacy/terms routes named in the draft contract are not yet implemented.
+- P2: Development dependency audit previously reported advisories; production dependency audit is clean.
 
 ## Working assumptions `[待确认]`
 1. English-first browser tool for creating fuse-bead / pixel-art patterns.
