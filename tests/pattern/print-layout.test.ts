@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculatePrintCellSizeMm } from "../../src/lib/pattern/print-layout";
+import { calculatePrintCellSizeMm, calculatePrintCodeSizeMm } from "../../src/lib/pattern/print-layout";
 
 describe("calculatePrintCellSizeMm boundary validation", () => {
   it.each([-1, 1.5, Number.NaN, Number.POSITIVE_INFINITY])(
@@ -35,4 +35,19 @@ describe("calculatePrintCellSizeMm boundary validation", () => {
       new RangeError("Print layout does not fit on one page"),
     );
   });
+});
+
+describe("calculatePrintCodeSizeMm boundary validation", () => {
+  it("never lets a code marker exceed an unusually dense print cell", () => {
+    expect(calculatePrintCodeSizeMm(1.2)).toBe(1.2);
+  });
+
+  it.each([0, -1, Number.NaN, Number.POSITIVE_INFINITY])(
+    "rejects invalid cell size %s",
+    (cellSizeMm) => {
+      expect(() => calculatePrintCodeSizeMm(cellSizeMm)).toThrow(
+        new RangeError("Print cell size must be a positive finite number"),
+      );
+    },
+  );
 });

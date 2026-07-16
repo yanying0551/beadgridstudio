@@ -2,7 +2,10 @@ const PRINT_GRID_MAX_WIDTH_MM = 180;
 const PRINT_ROW_AXIS_WIDTH_MM = 6;
 const PRINT_COLUMN_AXIS_HEIGHT_MM = 3;
 const PRINT_PAGE_CONTENT_HEIGHT_MM = 273;
-const PRINT_FIXED_PAGE_CONTENT_MM = 35;
+// Includes the complete header, inter-block spacing, legend, and a safety
+// margin for browser grid-border rounding. A smaller allowance can push the
+// legend of a narrow 50-row section onto an otherwise empty extra page.
+const PRINT_FIXED_PAGE_CONTENT_MM = 50;
 const PRINT_LEGEND_ROW_HEIGHT_MM = 4;
 const PRINT_LEGEND_COLUMNS = 3;
 const CSS_PIXEL_MM = 25.4 / 96;
@@ -47,4 +50,14 @@ export function calculatePrintCellSizeMm(
     throw new RangeError("Print layout does not fit on one page");
   }
   return cellSizeMm;
+}
+
+/** Scale cell color codes for legibility while keeping dense grids usable. */
+export function calculatePrintCodeSizeMm(cellSizeMm: number): number {
+  if (!Number.isFinite(cellSizeMm) || cellSizeMm <= 0) {
+    throw new RangeError("Print cell size must be a positive finite number");
+  }
+
+  const scaledSize = Math.floor(cellSizeMm * 0.65 * 100) / 100;
+  return Math.min(cellSizeMm, 4, Math.max(2.4, scaledSize));
 }

@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from "react";
 import type { PatternDocument } from "../lib/pattern";
-import { calculatePrintCellSizeMm } from "../lib/pattern/print-layout";
+import { calculatePrintCellSizeMm, calculatePrintCodeSizeMm } from "../lib/pattern/print-layout";
 
 const FALLBACK_COLOR = "#CBD5E1";
 
@@ -56,12 +56,16 @@ export function PatternPreview({ document }: { document: PatternDocument }) {
       {document.sections.items.map((section, pageIndex) => {
         const rect = section.printRect;
         const printCellSizeMm = calculatePrintCellSizeMm(rect.width, rect.height, document.palette.length);
+        const printCodeSizeMm = calculatePrintCodeSizeMm(printCellSizeMm);
         const columnTemplate = `max-content repeat(${rect.width}, var(--print-cell-size-mm))`;
         return (
           <article
             className="pattern-print-section"
             key={`print-${section.id}`}
-            style={{ "--print-cell-size-mm": `${printCellSizeMm}mm` } as CSSProperties}
+            style={{
+              "--print-cell-size-mm": `${printCellSizeMm}mm`,
+              "--print-code-size-mm": `${printCodeSizeMm}mm`,
+            } as CSSProperties}
           >
             <header className="pattern-print-header">
               <h1>{document.title}</h1>

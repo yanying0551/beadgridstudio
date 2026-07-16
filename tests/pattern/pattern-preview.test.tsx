@@ -2,7 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { PatternPreview } from "../../src/components/PatternPreview";
 import type { PatternDocument } from "../../src/lib/pattern";
-import { calculatePrintCellSizeMm } from "../../src/lib/pattern/print-layout";
+import { calculatePrintCellSizeMm, calculatePrintCodeSizeMm } from "../../src/lib/pattern/print-layout";
 
 function makeDocument(): PatternDocument {
   return {
@@ -45,16 +45,24 @@ function makeDocument(): PatternDocument {
 
 describe("PatternPreview", () => {
   it.each([
-    { width: 50, height: 50, expected: 3.47 },
-    { width: 10, height: 50, expected: 4.61 },
-    { width: 20, height: 50, expected: 4.61 },
-  ])("fits a $width x $height print grid within both page dimensions", ({ width, height, expected }) => {
-    const size = calculatePrintCellSizeMm(width, height, 3);
+    { width: 50, height: 50, paletteColorCount: 3, expected: 3.47 },
+    { width: 10, height: 50, paletteColorCount: 4, expected: 4.23 },
+    { width: 20, height: 50, paletteColorCount: 4, expected: 4.23 },
+  ])("fits a $width x $height print grid and its legend on one page", ({ width, height, paletteColorCount, expected }) => {
+    const size = calculatePrintCellSizeMm(width, height, paletteColorCount);
     const outerBorderMm = 25.4 / 96;
 
     expect(size).toBe(expected);
     expect(outerBorderMm + 6 + width * size).toBeLessThanOrEqual(180);
-    expect(outerBorderMm + 3 + height * size).toBeLessThanOrEqual(234);
+    expect(outerBorderMm + 3 + height * size).toBeLessThanOrEqual(215);
+  });
+
+  it.each([
+    { cellSizeMm: 3.47, expected: 2.4 },
+    { cellSizeMm: 5.42, expected: 3.52 },
+    { cellSizeMm: 21.71, expected: 4 },
+  ])("scales printable color codes for a $cellSizeMm mm cell", ({ cellSizeMm, expected }) => {
+    expect(calculatePrintCodeSizeMm(cellSizeMm)).toBe(expected);
   });
 
   it("renders every section's row-major cells with accessible global coordinate labels", () => {
@@ -129,6 +137,7 @@ describe("PatternPreview", () => {
     expect(sections[1].querySelectorAll("[data-print-cell]")).toHaveLength(4);
     expect(sections[1].querySelector('[data-row="1"][data-column="4"]')).toHaveAttribute("data-color-name", "Ocean Blue");
     expect((sections[0] as HTMLElement).style.getPropertyValue("--print-cell-size-mm")).toBe("86.86mm");
+    expect((sections[0] as HTMLElement).style.getPropertyValue("--print-code-size-mm")).toBe("4mm");
   });
 
   it("prints complete page context, assembly guidance, and a color-code legend on every section page", () => {

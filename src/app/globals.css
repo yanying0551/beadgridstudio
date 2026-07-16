@@ -104,6 +104,11 @@ legend {
     font-size: 8pt;
   }
 
+  .pattern-print-grid,
+  .pattern-print-grid * {
+    box-sizing: border-box;
+  }
+
   .pattern-print-grid {
     display: grid;
     grid-template-columns: var(--pattern-print-columns);
@@ -125,7 +130,7 @@ legend {
     min-width: 0;
     place-items: center;
     overflow: visible;
-    font-size: 5pt;
+    font-size: 6pt;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     line-height: 1;
@@ -161,14 +166,14 @@ legend {
 
   .pattern-print-cell-code {
     display: inline-grid;
-    min-width: 1.8mm;
-    min-height: 1.8mm;
+    width: var(--print-code-size-mm);
+    height: var(--print-code-size-mm);
     place-items: center;
     border: 0.25mm solid #000;
     border-radius: 50%;
     background: #fff;
     color: #000;
-    font-size: 5pt;
+    font-size: 6pt;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     line-height: 1;
