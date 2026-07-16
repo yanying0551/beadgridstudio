@@ -4,25 +4,24 @@
 
 ## Status
 - Overall: NEEDS REVIEW
-- Current gate: Local MVP implementation / verification
+- Current gate: Owner review / deployment readiness
 - Production launch: BLOCKED
-- Last updated: 2026-07-15
+- Last updated: 2026-07-16
 
 ## Latest implementation evidence
 - Existing Vite + TypeScript prototype was recovered from untracked files.
-- Added domain/runtime tests; grid suite was observed passing 13/13 before runtime implementation.
-- `src/runtime.test.ts` was observed RED because `runtime.ts` was absent; `runtime.ts` was then implemented.
-- `tsc --noEmit`: PASS after explicitly typing mutable selected-color state.
+- Runtime history, persistence, pointer interpolation, and PNG helpers are used by the real UI path.
+- Full Vitest verification: PASS — 2 files, 22/22 tests (`vitest run`, single worker).
+- Production build: PASS — Vite emitted `/`, `/privacy/`, and `/terms/` entry pages.
+- Browser smoke: PASS — paint, local save, undo/redo state, all three routes, and zero console errors verified on local preview.
+- Desktop visual review: PASS with no clipping, overlap, or horizontal overflow; footer link styling was corrected after review.
+- Responsive breakpoints and touch-oriented sizing are implemented; a dedicated mobile-device screenshot remains pending.
 - `npm audit --omit=dev`: PASS, 0 production vulnerabilities.
-- Full post-implementation Vitest run: UNVERIFIED — worker was blocked by concurrent host Vitest processes and later terminated.
-- Vite production bundle: UNVERIFIED — TypeScript phase passed, Vite phase did not complete within the verification window.
-- Browser/mobile smoke test: NOT RUN.
 
 ## Verification blockers / known issues
-- P0: A clean full test and production build run is still required before GO.
-- P1: `runtime.drawPng` has deterministic tests, but UI export currently uses a separate circle-rendering implementation; unify the paths before claiming export coverage.
-- P1: Runtime persistence/history helpers and UI state handling partially duplicate one another; integration review remains required.
-- P1: Privacy/terms routes named in the draft contract are not yet implemented.
+- P0: Production launch still requires owner approval, remote repository/push access, Cloudflare credentials, and explicit confirmation before public deployment or DNS changes.
+- P1: Dedicated mobile-device/touch screenshot evidence remains required before production GO.
+- P1: Analytics is intentionally absent; if analytics is added, privacy copy and consent requirements must be revisited before launch.
 - P2: Development dependency audit previously reported advisories; production dependency audit is clean.
 
 ## Working assumptions `[待确认]`
@@ -38,7 +37,7 @@
 - [ ] SEO copy frozen
 - [ ] Visual source approved
 - [ ] Data contract approved or explicitly not required
-- [ ] Implementation passes tests/build
+- [x] Implementation passes tests/build
 - [ ] PM/SEO/compliance review
 - [ ] Mobile and browser QA
 - [ ] Owner review
@@ -52,10 +51,10 @@
 | BGS-002 | Draft Route Contract | READY | BGS-001 |
 | BGS-003 | Draft SEO and page copy | BLOCKED | BGS-001/002 |
 | BGS-004 | Establish visual direction | BLOCKED | owner input |
-| BGS-005 | Scaffold frontend | BLOCKED | BGS-001/002/004 |
-| BGS-006 | Implement editor core using TDD | BLOCKED | BGS-005 |
-| BGS-007 | SEO/analytics/legal surfaces | BLOCKED | BGS-003/005 |
-| BGS-008 | QA and evidence pack | BLOCKED | BGS-006/007 |
+| BGS-005 | Scaffold frontend | DONE | BGS-001/002/004 |
+| BGS-006 | Implement editor core using TDD | DONE | BGS-005 |
+| BGS-007 | SEO/legal surfaces; analytics explicitly deferred | DONE | BGS-003/005 |
+| BGS-008 | QA and evidence pack | IN REVIEW | BGS-006/007 |
 | BGS-009 | Push/deploy/smoke test | BLOCKED | owner confirmation + credentials |
 
 ## Risks
@@ -65,6 +64,6 @@
 - P2: Accounts, sharing, cloud saves, and AI conversion are intentionally excluded from MVP until requested.
 
 ## Evidence ledger
-- Session-history search: no prior Bead Grid Studio session found.
-- Local inspection: `/root` was not a Git repository; no recoverable project found.
+- Project repository: `/root/bead-grid-studio`, branch `master`.
+- Local preview routes return 200: `/`, `/privacy/`, `/terms/`, and `/sitemap.xml`.
 - Skill loaded: `frontend-site-automation` v2.3.0.
