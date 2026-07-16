@@ -4,6 +4,7 @@ import {
   createDeferredPersistence,
   createHistory,
   drawPng,
+  gridNavigationTarget,
   interpolateCells,
   pushHistory,
   redoHistory,
@@ -49,6 +50,23 @@ describe('pointer helpers', () => {
     expect(interpolateCells({ row: 0, col: 0 }, { row: 3, col: 3 })).toEqual([
       { row: 0, col: 0 }, { row: 1, col: 1 }, { row: 2, col: 2 }, { row: 3, col: 3 },
     ]);
+  });
+});
+
+describe('keyboard grid navigation', () => {
+  it('moves with arrow keys and Home/End without leaving the grid', () => {
+    expect(gridNavigationTarget({ row: 2, col: 3 }, 'ArrowUp', 4)).toEqual({ row: 1, col: 3 });
+    expect(gridNavigationTarget({ row: 2, col: 3 }, 'ArrowDown', 4)).toEqual({ row: 3, col: 3 });
+    expect(gridNavigationTarget({ row: 2, col: 3 }, 'ArrowLeft', 4)).toEqual({ row: 2, col: 2 });
+    expect(gridNavigationTarget({ row: 2, col: 3 }, 'ArrowRight', 4)).toEqual({ row: 2, col: 3 });
+    expect(gridNavigationTarget({ row: 2, col: 3 }, 'Home', 4)).toEqual({ row: 2, col: 0 });
+    expect(gridNavigationTarget({ row: 2, col: 0 }, 'End', 4)).toEqual({ row: 2, col: 3 });
+    expect(gridNavigationTarget({ row: 0, col: 0 }, 'ArrowUp', 4)).toEqual({ row: 0, col: 0 });
+  });
+
+  it('returns null for keys that are not grid navigation commands', () => {
+    expect(gridNavigationTarget({ row: 1, col: 1 }, 'Enter', 4)).toBeNull();
+    expect(gridNavigationTarget({ row: 1, col: 1 }, 'a', 4)).toBeNull();
   });
 });
 
@@ -153,6 +171,9 @@ describe('deterministic PNG drawing', () => {
   it('paints white first when requested', () => {
     const calls: unknown[][] = [];
     drawPng(drawingContext(calls), createGrid(24), 'white');
-    expect(calls[1]).toEqual(['rect', '#ffffff', 0, 0, 1536, 1536]);
+    expect(calls).toEqual([
+      ['clear', 0, 0, 1536, 1536],
+      ['rect', '#ffffff', 0, 0, 1536, 1536],
+    ]);
   });
 });

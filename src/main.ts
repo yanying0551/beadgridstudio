@@ -13,6 +13,7 @@ import {
   createDeferredPersistence,
   createHistory,
   drawPng,
+  gridNavigationTarget,
   interpolateCells,
   pushHistory,
   redoHistory,
@@ -70,6 +71,7 @@ let strokeStart: Grid | null = null;
 let strokeChanged = false;
 let lastPainted = '';
 let lastPosition: CellPosition | null = null;
+let focusedPosition: CellPosition = { row: 0, col: 0 };
 
 function setStatus(message: string): void {
   saveStatus.textContent = message;
@@ -127,9 +129,15 @@ function updateStats(): void {
 
 function renderGrid(): void {
   const size = grid.length;
+  focusedPosition = {
+    row: Math.min(focusedPosition.row, size - 1),
+    col: Math.min(focusedPosition.col, size - 1),
+  };
   gridElement.style.setProperty('--grid-size', String(size));
   gridElement.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
   gridElement.setAttribute('aria-label', `${size} by ${size} bead design grid`);
+  gridElement.setAttribute('aria-rowcount', String(size));
+  gridElement.setAttribute('aria-colcount', String(size));
   const fragment = document.createDocumentFragment();
   grid.forEach((row, r) => row.forEach((color, c) => {
     const cell = document.createElement('button');
@@ -138,7 +146,10 @@ function renderGrid(): void {
     cell.dataset.row = String(r);
     cell.dataset.col = String(c);
     cell.setAttribute('role', 'gridcell');
+    cell.setAttribute('aria-rowindex', String(r + 1));
+    cell.setAttribute('aria-colindex', String(c + 1));
     cell.setAttribute('aria-label', `Row ${r + 1}, column ${c + 1}${color ? `, ${color}` : ', empty'}`);
+    cell.tabIndex = r === focusedPosition.row && c === focusedPosition.col ? 0 : -1;
     if (color) {
       cell.style.backgroundColor = color;
       cell.classList.add('filled');
@@ -202,6 +213,57 @@ function applyAt(row: number, col: number): void {
   renderGrid();
 }
 
+function gridCellAt(position: CellPosition): HTMLButtonElement | null {
+  return gridElement.querySelector<HTMLButtonElement>(`[data-row="${position.row}"][data-col="${position.col}"]`);
+}
+
+function focusGridCell(position: CellPosition): void {
+  focusedPosition = position;
+  const cell = gridCellAt(position);
+  if (!cell) return;
+  cell.tabIndex = 0;
+  cell.focus();
+}
+
+function activateGridCell(position: CellPosition): void {
+  const next = paintCell(
+    grid,
+    position.row,
+    position.col,
+    tool === 'erase' ? null : selectedColor,
+    mirrorH.checked,
+    mirrorV.checked,
+  );
+  if (JSON.stringify(next) === JSON.stringify(grid)) return;
+  commitGrid(next);
+  focusGridCell(position);
+}
+
+function handleGridKeydown(event: KeyboardEvent): void {
+  const cell = (event.target as Element).closest<HTMLElement>('.bead-cell');
+  if (!cell || !gridElement.contains(cell)) return;
+  const position = { row: Number(cell.dataset.row), col: Number(cell.dataset.col) };
+  const target = gridNavigationTarget(position, event.key, grid.length);
+  if (target) {
+    event.preventDefault();
+    gridCellAt(focusedPosition)?.setAttribute('tabindex', '-1');
+    focusGridCell(target);
+    return;
+  }
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    activateGridCell(position);
+  }
+}
+
+function handleGridFocus(event: FocusEvent): void {
+  const cell = (event.target as Element).closest<HTMLElement>('.bead-cell');
+  if (!cell || !gridElement.contains(cell)) return;
+  gridCellAt(focusedPosition)?.setAttribute('tabindex', '-1');
+  focusedPosition = { row: Number(cell.dataset.row), col: Number(cell.dataset.col) };
+  cell.tabIndex = 0;
+}
+
 function cellAtPoint(x: number, y: number): HTMLElement | null {
   const target = document.elementFromPoint(x, y);
   return target instanceof Element ? target.closest<HTMLElement>('.bead-cell') : null;
@@ -217,6 +279,7 @@ function beginStroke(event: PointerEvent): void {
   strokeChanged = false;
   lastPainted = '';
   lastPosition = { row: Number(cell.dataset.row), col: Number(cell.dataset.col) };
+  focusedPosition = lastPosition;
   gridElement.setPointerCapture(event.pointerId);
   applyAt(Number(cell.dataset.row), Number(cell.dataset.col));
 }
@@ -316,6 +379,8 @@ gridElement.addEventListener('pointerdown', beginStroke);
 gridElement.addEventListener('pointermove', moveStroke);
 gridElement.addEventListener('pointerup', endStroke);
 gridElement.addEventListener('pointercancel', endStroke);
+gridElement.addEventListener('keydown', handleGridKeydown);
+gridElement.addEventListener('focusin', handleGridFocus);
 projectName.addEventListener('input', saveSoon);
 window.addEventListener('pagehide', persistence.flush);
 

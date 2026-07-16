@@ -66,6 +66,20 @@ export function redoHistory(history: History): History {
   };
 }
 
+export function gridNavigationTarget(position: CellPosition, key: string, size: number): CellPosition | null {
+  if (!Number.isInteger(size) || size < 1) return null;
+  const last = size - 1;
+  switch (key) {
+    case 'ArrowUp': return { row: Math.max(0, position.row - 1), col: position.col };
+    case 'ArrowDown': return { row: Math.min(last, position.row + 1), col: position.col };
+    case 'ArrowLeft': return { row: position.row, col: Math.max(0, position.col - 1) };
+    case 'ArrowRight': return { row: position.row, col: Math.min(last, position.col + 1) };
+    case 'Home': return { row: position.row, col: 0 };
+    case 'End': return { row: position.row, col: last };
+    default: return null;
+  }
+}
+
 export function interpolateCells(from: CellPosition, to: CellPosition): CellPosition[] {
   const cells: CellPosition[] = [];
   let col = from.col;
