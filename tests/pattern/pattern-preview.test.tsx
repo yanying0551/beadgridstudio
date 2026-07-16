@@ -45,17 +45,16 @@ function makeDocument(): PatternDocument {
 
 describe("PatternPreview", () => {
   it.each([
-    { width: 50, height: 50, limitingDimension: "width", expected: 3.48 },
-    { width: 10, height: 50, limitingDimension: "height", expected: 4.62 },
-    { width: 20, height: 50, limitingDimension: "height", expected: 4.62 },
-  ])("fits a $width x $height print grid within both page dimensions", ({ width, height, limitingDimension, expected }) => {
+    { width: 50, height: 50, expected: 3.47 },
+    { width: 10, height: 50, expected: 4.61 },
+    { width: 20, height: 50, expected: 4.61 },
+  ])("fits a $width x $height print grid within both page dimensions", ({ width, height, expected }) => {
     const size = calculatePrintCellSizeMm(width, height, 3);
+    const outerBorderMm = 25.4 / 96;
 
     expect(size).toBe(expected);
-    expect(6 + width * size).toBeLessThanOrEqual(180);
-    expect(3 + height * size).toBeLessThanOrEqual(234);
-    if (limitingDimension === "width") expect(6 + width * size).toBe(180);
-    else expect(3 + height * size).toBe(234);
+    expect(outerBorderMm + 6 + width * size).toBeLessThanOrEqual(180);
+    expect(outerBorderMm + 3 + height * size).toBeLessThanOrEqual(234);
   });
 
   it("renders every section's row-major cells with accessible global coordinate labels", () => {
@@ -129,7 +128,7 @@ describe("PatternPreview", () => {
     expect(sections[1]).toHaveTextContent("Columns 3–4 · Rows 1–2");
     expect(sections[1].querySelectorAll("[data-print-cell]")).toHaveLength(4);
     expect(sections[1].querySelector('[data-row="1"][data-column="4"]')).toHaveAttribute("data-color-name", "Ocean Blue");
-    expect((sections[0] as HTMLElement).style.getPropertyValue("--print-cell-size-mm")).toBe("87mm");
+    expect((sections[0] as HTMLElement).style.getPropertyValue("--print-cell-size-mm")).toBe("86.86mm");
   });
 
   it("prints complete page context, assembly guidance, and a color-code legend on every section page", () => {
@@ -149,16 +148,15 @@ describe("PatternPreview", () => {
     });
   });
 
-  it("prints visible orientation guidance on every page and recommends the best fit", () => {
+  it("prints one A4 portrait orientation contract on every page", () => {
     const document = makeDocument();
     document.sections.items[1].printRect = { x: 2, y: 0, width: 2, height: 1 };
     const { container } = render(<PatternPreview document={document} />);
     const sections = Array.from(container.querySelectorAll(".pattern-print-section"));
 
     expect(sections).toHaveLength(2);
-    expect(sections[0].querySelector(".pattern-print-orientation")).toHaveTextContent(/choose portrait orientation/i);
-    expect(sections[1].querySelector(".pattern-print-orientation")).toHaveTextContent(/choose landscape orientation/i);
     sections.forEach((section) => {
+      expect(section.querySelector(".pattern-print-header .pattern-print-orientation")).toHaveTextContent(/choose A4 paper and portrait orientation/i);
       expect(section.querySelector(".pattern-print-header .pattern-print-orientation")).toHaveTextContent(/verify.*print preview/i);
     });
   });

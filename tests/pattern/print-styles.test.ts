@@ -4,6 +4,11 @@ import { describe, expect, it } from "vitest";
 const css = readFileSync(`${process.cwd()}/src/app/globals.css`, "utf8");
 
 describe("pattern print styles", () => {
+  it("requests the A4 portrait page used by the print layout calculation", () => {
+    const printCss = css.slice(css.indexOf("@media print"));
+    expect(printCss).toMatch(/@page\s*\{[^}]*size:\s*A4 portrait[^}]*margin:\s*12mm/);
+  });
+
   it("hides ordinary page UI and reveals only the dedicated print area with page breaks", () => {
     expect(css).toMatch(/\.pattern-print-area\s*\{\s*display:\s*none/);
     const printCss = css.slice(css.indexOf("@media print"));

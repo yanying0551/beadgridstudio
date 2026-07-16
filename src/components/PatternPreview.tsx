@@ -55,7 +55,6 @@ export function PatternPreview({ document }: { document: PatternDocument }) {
     <section className="pattern-print-area" aria-hidden="true">
       {document.sections.items.map((section, pageIndex) => {
         const rect = section.printRect;
-        const orientation = rect.width > rect.height ? "Landscape" : "Portrait";
         const printCellSizeMm = calculatePrintCellSizeMm(rect.width, rect.height, document.palette.length);
         const columnTemplate = `max-content repeat(${rect.width}, var(--print-cell-size-mm))`;
         return (
@@ -69,7 +68,7 @@ export function PatternPreview({ document }: { document: PatternDocument }) {
               <p className="pattern-print-page">Page {pageIndex + 1} of {document.sections.items.length}</p>
               <h2>Section {section.order + 1}</h2>
               <p className="pattern-print-bounds">{bounds(rect, true)}</p>
-              <p className="pattern-print-orientation">Choose {orientation} orientation; verify it in print preview.</p>
+              <p className="pattern-print-orientation">Choose A4 paper and Portrait orientation for the entire print job; verify it in print preview.</p>
               <p className="pattern-print-guidance">Sections are ordered left to right, then top to bottom. Match the printed bounds when assembling; overlap: {document.sections.layout.overlapCells} cells.</p>
             </header>
             <div

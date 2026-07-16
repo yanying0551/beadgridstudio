@@ -44,6 +44,12 @@ describe("static route shell", () => {
     expect(screen.getByText(/only select images you own or have permission to use/i)).toBeInTheDocument();
   });
 
+  it("documents the fixed A4 portrait print contract without conflicting landscape guidance", () => {
+    render(<PrintGuidePage />);
+    expect(screen.getByText(/choose A4 paper and portrait orientation/i)).toBeInTheDocument();
+    expect(screen.queryByText(/landscape orientation/i)).not.toBeInTheDocument();
+  });
+
   it("keeps a visible pre-launch contact release blocker without inventing contact details", () => {
     render(<ContactPage />);
     expect(screen.getByText(/a monitored contact method must be active and tested before public launch/i)).toBeInTheDocument();
