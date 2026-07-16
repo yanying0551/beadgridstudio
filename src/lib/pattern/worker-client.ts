@@ -98,5 +98,5 @@ export class PatternWorkerClient {
 
 /** Browser-only factory kept out of the testable client lifecycle. */
 export function createBrowserPatternWorker(): WorkerLike {
-  return new Worker(new URL("../../workers/pattern.worker.ts", import.meta.url), { type: "module" }) as unknown as WorkerLike;
+  return new Worker("/pattern.worker.js", { type: "module" }) as unknown as WorkerLike;
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { PatternWorkerClient, type WorkerLike } from "../../src/lib/pattern/worker-client";
+import { createBrowserPatternWorker, PatternWorkerClient, type WorkerLike } from "../../src/lib/pattern/worker-client";
 import type { ConvertPatternRequest, WorkerResponse } from "../../src/workers/pattern-worker.protocol";
 
 const request: Omit<ConvertPatternRequest, "requestId"> = {
@@ -23,6 +23,17 @@ class FakeWorker implements WorkerLike {
 }
 
 describe("PatternWorkerClient", () => {
+  it("loads the precompiled public worker asset in browsers", () => {
+    const worker = { terminate: vi.fn() };
+    const WorkerConstructor = vi.fn(() => worker);
+    vi.stubGlobal("Worker", WorkerConstructor);
+
+    expect(createBrowserPatternWorker()).toBe(worker);
+    expect(WorkerConstructor).toHaveBeenCalledWith("/pattern.worker.js", { type: "module" });
+
+    vi.unstubAllGlobals();
+  });
+
   it("posts only pixel buffer/settings and resolves a matching completion", async () => {
     const worker = new FakeWorker();
     const client = new PatternWorkerClient(() => worker);

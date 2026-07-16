@@ -4,7 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "predev": "npm run build:worker",
+    "build:worker": "node scripts/build-pattern-worker.mjs",
     "build": "next build",
+    "prebuild": "npm run build:worker",
+    "postbuild": "node scripts/verify-static-export.mjs",
     "start": "next start",
     "lint": "eslint .",
     "test": "vitest run",
@@ -19,16 +23,17 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
+    "@testing-library/jest-dom": "^6.6.0",
+    "@testing-library/react": "^16.0.0",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",
+    "esbuild": "^0.28.1",
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.0.0",
     "jsdom": "^25.0.0",
     "typescript": "^5.0.0",
-    "vitest": "^2.0.0",
-    "@testing-library/jest-dom": "^6.6.0",
-    "@testing-library/react": "^16.0.0"
+    "vitest": "^2.0.0"
   }
 }
