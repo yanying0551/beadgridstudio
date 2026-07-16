@@ -3,9 +3,9 @@
 > Single source of truth for scope, gates, status, evidence, and handoffs.
 
 ## Status
-- Overall: NEEDS REVIEW
-- Current gate: Cloudflare credential readiness
-- Production launch: BLOCKED
+- Overall: LIVE
+- Current gate: Post-launch monitoring / owner review
+- Production launch: LIVE — https://beadgridstudio.pages.dev/
 - Last updated: 2026-07-16
 
 ## Latest implementation evidence
@@ -21,7 +21,7 @@
 - `npm audit --omit=dev`: PASS, 0 production vulnerabilities.
 
 ## Verification blockers / known issues
-- P0: Production launch still requires owner approval, Cloudflare credentials, and explicit confirmation before public deployment or DNS changes. GitHub remote/push access is ready.
+- Production deployment and smoke testing are complete. A custom domain has not been configured.
 - Mobile QA: PASS at a true 390×844 emulated viewport. All three routes reported `scrollWidth = clientWidth = 390`, no overflowing elements, and no visual clipping or overlap.
 - P1: Analytics is intentionally absent; if analytics is added, privacy copy and consent requirements must be revisited before launch.
 - P2: Development dependency audit previously reported advisories; production dependency audit is clean.
@@ -43,7 +43,7 @@
 - [ ] PM/SEO/compliance review
 - [x] Mobile and browser QA
 - [ ] Owner review
-- [ ] Production deploy (explicit confirmation required)
+- [x] Production deploy (explicit confirmation received)
 - [ ] Post-launch data review
 
 ## Work queue
@@ -57,10 +57,10 @@
 | BGS-006 | Implement editor core using TDD | DONE | BGS-005 |
 | BGS-007 | SEO/legal surfaces; analytics explicitly deferred | DONE | BGS-003/005 |
 | BGS-008 | QA and evidence pack | DONE | BGS-006/007 |
-| BGS-009 | Push/deploy/smoke test | IN PROGRESS | GitHub push done; Cloudflare credentials + owner deployment confirmation pending |
+| BGS-009 | Push/deploy/smoke test | DONE | GitHub and Cloudflare Pages production verified |
 
 ## Risks
-- P0: No design source, domain, or Cloudflare account readiness evidence. GitHub repository readiness is confirmed.
+- P1: No approved design source or custom domain is configured; the Cloudflare Pages subdomain is live.
 - P1: “Bead” could refer to jewelry beads rather than fuse beads; product meaning needs confirmation.
 - P1: Export/print requirements and commercial palette trademarks are unresolved.
 - P2: Accounts, sharing, cloud saves, and AI conversion are intentionally excluded from MVP until requested.
@@ -70,4 +70,5 @@
 - GitHub remote: `https://github.com/yanying0551/beadgridstudio.git`; push verified through commit `6d88f2a` on 2026-07-16.
 - Local preview routes return 200: `/`, `/privacy/`, `/terms/`, and `/sitemap.xml`.
 - Mobile evidence: `qa-evidence/mobile/home-390x844.png`, `privacy-390x844.png`, and `terms-390x844.png`; CDP device metrics confirmed a 390×844 mobile viewport with zero horizontal overflow.
+- Cloudflare Pages production: `https://beadgridstudio.pages.dev/`; project `beadgridstudio`, production branch `main`, deployment `00fc08d6-c647-4ca8-af74-d0d2dc7488ff`, created 2026-07-16. `/`, `/privacy/`, and `/terms/` passed live browser smoke testing with zero console errors.
 - Skill loaded: `frontend-site-automation` v2.3.0.
