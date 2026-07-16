@@ -21,6 +21,28 @@ export function patternToCsv(document: Pick<PatternDocument, "settings" | "palet
   return rows.join("\n");
 }
 
+/** Serialize the complete generic palette as a materials list using counts derived from cells. */
+export function materialsToCsv(document: Pick<PatternDocument, "palette" | "cells">): string {
+  const counts = new Map(document.palette.map((color) => [color.id, 0]));
+  for (const cell of document.cells) {
+    if (counts.has(cell.paletteColorId)) {
+      counts.set(cell.paletteColorId, (counts.get(cell.paletteColorId) ?? 0) + 1);
+    }
+  }
+
+  const rows = ["color,color_hex,palette_id,bead_count"];
+  for (const color of document.palette) {
+    rows.push([
+      color.name,
+      color.hex,
+      color.id,
+      counts.get(color.id) ?? 0,
+    ].map(csvField).join(","));
+  }
+  rows.push(["TOTAL", "", "", document.cells.length].map(csvField).join(","));
+  return rows.join("\n");
+}
+
 function csvField(value: string | number): string {
   const text = String(value);
   return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;

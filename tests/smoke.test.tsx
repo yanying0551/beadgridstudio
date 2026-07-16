@@ -9,9 +9,7 @@ describe("Bead Grid Studio homepage", () => {
     expect(
       screen.getByRole("heading", { name: "Fuse Bead Pattern Maker", level: 1 }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/processed locally in your browser/i),
-    ).toBeInTheDocument();
+    expect(screen.getAllByText(/processed locally in your browser/i)).toHaveLength(2);
     expect(
       screen.getByLabelText(/choose a jpg or png/i),
     ).toBeInTheDocument();
