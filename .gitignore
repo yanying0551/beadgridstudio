@@ -3,3 +3,8 @@ dist
 .DS_Store
 *.local
 coverage
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
