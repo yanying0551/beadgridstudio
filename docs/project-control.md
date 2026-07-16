@@ -10,12 +10,14 @@
 
 ## Latest implementation evidence
 - Existing Vite + TypeScript prototype was recovered from untracked files.
-- Runtime history, persistence, pointer interpolation, and PNG helpers are used by the real UI path.
-- Full Vitest verification: PASS — 2 files, 22/22 tests (`vitest run`, single worker).
-- Production build: PASS — Vite emitted `/`, `/privacy/`, and `/terms/` entry pages.
-- Browser smoke: PASS — paint, local save, undo/redo state, all three routes, and zero console errors verified on local preview.
+- Runtime history, deferred persistence, pointer interpolation, and PNG rendering helpers are used by the real UI path.
+- Full Vitest verification: PASS — 2 files, 24/24 tests (`vitest run`, single fork worker) on 2026-07-16.
+- Production build: PASS — TypeScript + Vite emitted `/`, `/privacy/`, and `/terms/` entry pages on 2026-07-16.
+- Browser smoke: PASS — pointer paint, local save, keyboard grid navigation/paint, roving tabindex, all three routes, and zero console errors verified on local production preview.
+- Spec compliance review: PASS after correcting the local-autosave disclosure.
+- Code quality review: APPROVED after adding keyboard-operable grid controls and hosting/CDN privacy disclosure.
 - Desktop visual review: PASS with no clipping, overlap, or horizontal overflow; footer link styling was corrected after review.
-- Responsive breakpoints and touch-oriented sizing are implemented; a dedicated mobile-device screenshot remains pending.
+- Responsive breakpoints and touch-oriented sizing are implemented; a dedicated mobile-device/touch screenshot remains pending.
 - `npm audit --omit=dev`: PASS, 0 production vulnerabilities.
 
 ## Verification blockers / known issues
