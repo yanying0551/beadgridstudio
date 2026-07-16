@@ -21,7 +21,7 @@
 - `npm audit --omit=dev`: PASS, 0 production vulnerabilities.
 
 ## Verification blockers / known issues
-- P0: Production launch still requires owner approval, remote repository/push access, Cloudflare credentials, and explicit confirmation before public deployment or DNS changes.
+- P0: Production launch still requires owner approval, Cloudflare credentials, and explicit confirmation before public deployment or DNS changes. GitHub remote/push access is ready.
 - P1: Dedicated mobile-device/touch screenshot evidence remains required before production GO.
 - P1: Analytics is intentionally absent; if analytics is added, privacy copy and consent requirements must be revisited before launch.
 - P2: Development dependency audit previously reported advisories; production dependency audit is clean.
@@ -57,15 +57,16 @@
 | BGS-006 | Implement editor core using TDD | DONE | BGS-005 |
 | BGS-007 | SEO/legal surfaces; analytics explicitly deferred | DONE | BGS-003/005 |
 | BGS-008 | QA and evidence pack | IN REVIEW | BGS-006/007 |
-| BGS-009 | Push/deploy/smoke test | BLOCKED | owner confirmation + credentials |
+| BGS-009 | Push/deploy/smoke test | IN PROGRESS | GitHub push done; Cloudflare credentials + owner deployment confirmation pending |
 
 ## Risks
-- P0: No design source, repository remote, domain, or account readiness evidence.
+- P0: No design source, domain, or Cloudflare account readiness evidence. GitHub repository readiness is confirmed.
 - P1: “Bead” could refer to jewelry beads rather than fuse beads; product meaning needs confirmation.
 - P1: Export/print requirements and commercial palette trademarks are unresolved.
 - P2: Accounts, sharing, cloud saves, and AI conversion are intentionally excluded from MVP until requested.
 
 ## Evidence ledger
 - Project repository: `/root/bead-grid-studio`, branch `master`.
+- GitHub remote: `https://github.com/yanying0551/beadgridstudio.git`; local `master` tracks `origin/main`; push verified at `e885737` on 2026-07-16.
 - Local preview routes return 200: `/`, `/privacy/`, `/terms/`, and `/sitemap.xml`.
 - Skill loaded: `frontend-site-automation` v2.3.0.
