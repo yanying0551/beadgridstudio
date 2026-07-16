@@ -9,6 +9,7 @@
 - Last updated: 2026-07-16
 
 ## Latest implementation evidence
+- MVP PRD, Route Contract, and SEO/copy freeze drafts now document the shipped product and are marked `NEEDS_REVIEW`; unresolved business, legal, domain, and positioning decisions remain explicit `[待确认]` items.
 - Existing Vite + TypeScript prototype was recovered from untracked files.
 - Runtime history, deferred persistence, pointer interpolation, and PNG rendering helpers are used by the real UI path.
 - Full Vitest verification: PASS — 3 files, 26/26 tests (`vitest run`) on 2026-07-16.
@@ -75,4 +76,6 @@
 - Mobile evidence: `qa-evidence/mobile/home-390x844.png`, `privacy-390x844.png`, and `terms-390x844.png`; CDP device metrics confirmed a 390×844 mobile viewport with zero horizontal overflow.
 - Cloudflare Pages production: `https://bead-grid-studio.pages.dev/`; project `bead-grid-studio`, production branch `main`, deployment `9984e35c-baa0-48bf-87d6-e422ae5060f6`, created 2026-07-16. A dedicated project prevents concurrent deployments from the separate `beadgridstudio` project from replacing this frontend. `/`, `/privacy/`, `/terms/`, `/sitemap.xml`, `/robots.txt`, and `/og-image.png` returned HTTP 200 on the production alias; the immutable deployment URL also returned HTTP 200.
 - Production browser smoke: cell painting enabled undo, deferred local persistence wrote `bead-grid-studio-project-v1`, and all checked routes produced zero console errors.
-- Skill loaded: `frontend-site-automation` v2.3.0.
+- Production recheck on 2026-07-16: `/`, `/privacy/`, `/terms/`, `/sitemap.xml`, and `/robots.txt` returned HTTP 200; the production build passed and all 26/26 tests passed.
+- Ops launch pack: `docs/ops-launch-pack.md` is drafted with positioning, channel-specific copy, UTM links, launch cadence, monitoring, and an empty publication ledger. No external promotion has been executed; Owner Review is required.
+- Skill loaded: `frontend-site-automation` v2.3.0 and `site-ops-growth-launch` v2.3.0.
