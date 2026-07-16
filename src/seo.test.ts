@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const productionOrigin = 'https://beadgridstudio.pages.dev';
+const productionOrigin = 'https://bead-grid-studio.pages.dev';
 
 function projectFile(path: string) {
   return readFileSync(resolve(process.cwd(), path), 'utf8');
