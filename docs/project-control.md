@@ -73,6 +73,6 @@
 - GitHub remote: `https://github.com/yanying0551/beadgridstudio.git`; `main` push synchronization verified on 2026-07-16.
 - Local preview routes return 200: `/`, `/privacy/`, `/terms/`, and `/sitemap.xml`.
 - Mobile evidence: `qa-evidence/mobile/home-390x844.png`, `privacy-390x844.png`, and `terms-390x844.png`; CDP device metrics confirmed a 390×844 mobile viewport with zero horizontal overflow.
-- Cloudflare Pages production: `https://bead-grid-studio.pages.dev/`; project `bead-grid-studio`, production branch `main`. A dedicated project prevents concurrent deployments from the separate `beadgridstudio` project from replacing this frontend. `/`, `/privacy/`, `/terms/`, `/sitemap.xml`, and `/robots.txt` are included in production smoke testing.
+- Cloudflare Pages production: `https://bead-grid-studio.pages.dev/`; project `bead-grid-studio`, production branch `main`, deployment `9984e35c-baa0-48bf-87d6-e422ae5060f6`, created 2026-07-16. A dedicated project prevents concurrent deployments from the separate `beadgridstudio` project from replacing this frontend. `/`, `/privacy/`, `/terms/`, `/sitemap.xml`, `/robots.txt`, and `/og-image.png` returned HTTP 200 on the production alias; the immutable deployment URL also returned HTTP 200.
 - Production browser smoke: cell painting enabled undo, deferred local persistence wrote `bead-grid-studio-project-v1`, and all checked routes produced zero console errors.
 - Skill loaded: `frontend-site-automation` v2.3.0.
