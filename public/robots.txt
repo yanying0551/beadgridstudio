@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://beadgridstudio.pages.dev/sitemap.xml
+Sitemap: https://bead-grid-studio.pages.dev/sitemap.xml

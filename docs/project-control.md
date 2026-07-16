@@ -5,14 +5,15 @@
 ## Status
 - Overall: LIVE
 - Current gate: Post-launch monitoring / owner review
-- Production launch: LIVE — https://beadgridstudio.pages.dev/
+- Production launch: LIVE — https://bead-grid-studio.pages.dev/
 - Last updated: 2026-07-16
 
 ## Latest implementation evidence
 - Existing Vite + TypeScript prototype was recovered from untracked files.
 - Runtime history, deferred persistence, pointer interpolation, and PNG rendering helpers are used by the real UI path.
-- Full Vitest verification: PASS — 2 files, 24/24 tests (`vitest run`, single fork worker) on 2026-07-16.
-- Production build: PASS — TypeScript + Vite emitted `/`, `/privacy/`, and `/terms/` entry pages on 2026-07-16.
+- Full Vitest verification: PASS — 3 files, 26/26 tests (`vitest run`) on 2026-07-16.
+- SEO regression coverage: PASS — production canonical, Open Graph, structured-data, sitemap, robots, and shipped social-preview asset are guarded against drift.
+- Production build: PASS — TypeScript + Vite emitted `/`, `/privacy/`, and `/terms/` entry pages and the 1200×630 Open Graph image on 2026-07-16.
 - Browser smoke: PASS — pointer paint, local save, keyboard grid navigation/paint, roving tabindex, all three routes, and zero console errors verified on local production preview.
 - Spec compliance review: PASS after correcting the local-autosave disclosure.
 - Code quality review: APPROVED after adding keyboard-operable grid controls and hosting/CDN privacy disclosure.
@@ -21,7 +22,7 @@
 - `npm audit --omit=dev`: PASS, 0 production vulnerabilities.
 
 ## Verification blockers / known issues
-- SEO origin mismatch: RESOLVED — canonical, Open Graph, structured-data, sitemap, and robots URLs now use the live `https://beadgridstudio.pages.dev/` origin. A regression test guards all public absolute URLs until a custom domain is connected.
+- SEO origin mismatch: RESOLVED — canonical, Open Graph, structured-data, sitemap, and robots URLs use the dedicated frontend origin `https://bead-grid-studio.pages.dev/`. A regression test guards all public absolute URLs until a custom domain is connected.
 - Custom domain: DEFERRED — `beadgrid.studio` is not present as a Zone in the authenticated Cloudflare account, so no DNS changes were made.
 - Mobile QA: PASS at a true 390×844 emulated viewport. All three routes reported `scrollWidth = clientWidth = 390`, no overflowing elements, and no visual clipping or overlap.
 - P1: Analytics is intentionally absent; if analytics is added, privacy copy and consent requirements must be revisited before launch.
@@ -72,6 +73,6 @@
 - GitHub remote: `https://github.com/yanying0551/beadgridstudio.git`; `main` push synchronization verified on 2026-07-16.
 - Local preview routes return 200: `/`, `/privacy/`, `/terms/`, and `/sitemap.xml`.
 - Mobile evidence: `qa-evidence/mobile/home-390x844.png`, `privacy-390x844.png`, and `terms-390x844.png`; CDP device metrics confirmed a 390×844 mobile viewport with zero horizontal overflow.
-- Cloudflare Pages production: `https://beadgridstudio.pages.dev/`; project `beadgridstudio`, production branch `main`, deployment `00fc08d6-c647-4ca8-af74-d0d2dc7488ff`, created 2026-07-16. `/`, `/privacy/`, `/terms/`, `/sitemap.xml`, and `/robots.txt` returned HTTP 200 on both the production alias and immutable deployment URL.
+- Cloudflare Pages production: `https://bead-grid-studio.pages.dev/`; project `bead-grid-studio`, production branch `main`. A dedicated project prevents concurrent deployments from the separate `beadgridstudio` project from replacing this frontend. `/`, `/privacy/`, `/terms/`, `/sitemap.xml`, and `/robots.txt` are included in production smoke testing.
 - Production browser smoke: cell painting enabled undo, deferred local persistence wrote `bead-grid-studio-project-v1`, and all checked routes produced zero console errors.
 - Skill loaded: `frontend-site-automation` v2.3.0.
