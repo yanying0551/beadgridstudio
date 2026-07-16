@@ -23,9 +23,13 @@ describe('production SEO origin', () => {
       expect(contents, file).not.toContain('https://beadgrid.studio');
     }
 
-    expect(projectFile('index.html')).toContain(`${productionOrigin}/`);
-    expect(projectFile('privacy/index.html')).toContain(`${productionOrigin}/privacy/`);
-    expect(projectFile('terms/index.html')).toContain(`${productionOrigin}/terms/`);
+    const home = projectFile('index.html');
+    expect(home).toContain(`<meta property="og:url" content="${productionOrigin}/" />`);
+    expect(home).toContain(`<meta property="og:image" content="${productionOrigin}/og-image.png" />`);
+    expect(home).toContain(`<link rel="canonical" href="${productionOrigin}/" />`);
+    expect(home).toContain(`"url":"${productionOrigin}/"`);
+    expect(projectFile('privacy/index.html')).toContain(`<link rel="canonical" href="${productionOrigin}/privacy/" />`);
+    expect(projectFile('terms/index.html')).toContain(`<link rel="canonical" href="${productionOrigin}/terms/" />`);
     expect(projectFile('public/sitemap.xml')).toContain(`${productionOrigin}/privacy/`);
     expect(projectFile('public/sitemap.xml')).toContain(`${productionOrigin}/terms/`);
     expect(projectFile('public/robots.txt')).toContain(`${productionOrigin}/sitemap.xml`);
