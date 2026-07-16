@@ -21,7 +21,8 @@
 - `npm audit --omit=dev`: PASS, 0 production vulnerabilities.
 
 ## Verification blockers / known issues
-- P0: Production deployment and smoke testing are complete, but `beadgrid.studio` is used by canonical and sitemap URLs while it is not present as a Zone in the authenticated Cloudflare account. No DNS changes were made; the working origin is `https://beadgridstudio.pages.dev/`.
+- SEO origin mismatch: RESOLVED — canonical, Open Graph, structured-data, sitemap, and robots URLs now use the live `https://beadgridstudio.pages.dev/` origin. A regression test guards all public absolute URLs until a custom domain is connected.
+- Custom domain: DEFERRED — `beadgrid.studio` is not present as a Zone in the authenticated Cloudflare account, so no DNS changes were made.
 - Mobile QA: PASS at a true 390×844 emulated viewport. All three routes reported `scrollWidth = clientWidth = 390`, no overflowing elements, and no visual clipping or overlap.
 - P1: Analytics is intentionally absent; if analytics is added, privacy copy and consent requirements must be revisited before launch.
 - P2: Development dependency audit previously reported advisories; production dependency audit is clean.
@@ -60,7 +61,7 @@
 | BGS-009 | Push/deploy/smoke test | DONE | GitHub and Cloudflare Pages production verified |
 
 ## Risks
-- P0: The canonical custom domain is not configured in the authenticated Cloudflare account; until it is connected, search engines may encounter canonical and sitemap URLs that do not resolve to this deployment.
+- P1: The preferred custom domain is not configured in the authenticated Cloudflare account. The live Pages origin is used consistently for SEO until the domain is connected.
 - P1: No approved design source is recorded; the Cloudflare Pages subdomain is live.
 - P1: “Bead” could refer to jewelry beads rather than fuse beads; product meaning needs confirmation.
 - P1: Export/print requirements and commercial palette trademarks are unresolved.
