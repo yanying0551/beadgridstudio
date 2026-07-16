@@ -21,7 +21,7 @@
 - `npm audit --omit=dev`: PASS, 0 production vulnerabilities.
 
 ## Verification blockers / known issues
-- Production deployment and smoke testing are complete. A custom domain has not been configured.
+- P0: Production deployment and smoke testing are complete, but `beadgrid.studio` is used by canonical and sitemap URLs while it is not present as a Zone in the authenticated Cloudflare account. No DNS changes were made; the working origin is `https://beadgridstudio.pages.dev/`.
 - Mobile QA: PASS at a true 390×844 emulated viewport. All three routes reported `scrollWidth = clientWidth = 390`, no overflowing elements, and no visual clipping or overlap.
 - P1: Analytics is intentionally absent; if analytics is added, privacy copy and consent requirements must be revisited before launch.
 - P2: Development dependency audit previously reported advisories; production dependency audit is clean.
@@ -60,15 +60,17 @@
 | BGS-009 | Push/deploy/smoke test | DONE | GitHub and Cloudflare Pages production verified |
 
 ## Risks
-- P1: No approved design source or custom domain is configured; the Cloudflare Pages subdomain is live.
+- P0: The canonical custom domain is not configured in the authenticated Cloudflare account; until it is connected, search engines may encounter canonical and sitemap URLs that do not resolve to this deployment.
+- P1: No approved design source is recorded; the Cloudflare Pages subdomain is live.
 - P1: “Bead” could refer to jewelry beads rather than fuse beads; product meaning needs confirmation.
 - P1: Export/print requirements and commercial palette trademarks are unresolved.
 - P2: Accounts, sharing, cloud saves, and AI conversion are intentionally excluded from MVP until requested.
 
 ## Evidence ledger
 - Project repository: `/root/bead-grid-studio`, branch `main` tracking `origin/main`.
-- GitHub remote: `https://github.com/yanying0551/beadgridstudio.git`; push verified through commit `6d88f2a` on 2026-07-16.
+- GitHub remote: `https://github.com/yanying0551/beadgridstudio.git`; `main` push synchronization verified on 2026-07-16.
 - Local preview routes return 200: `/`, `/privacy/`, `/terms/`, and `/sitemap.xml`.
 - Mobile evidence: `qa-evidence/mobile/home-390x844.png`, `privacy-390x844.png`, and `terms-390x844.png`; CDP device metrics confirmed a 390×844 mobile viewport with zero horizontal overflow.
-- Cloudflare Pages production: `https://beadgridstudio.pages.dev/`; project `beadgridstudio`, production branch `main`, deployment `00fc08d6-c647-4ca8-af74-d0d2dc7488ff`, created 2026-07-16. `/`, `/privacy/`, and `/terms/` passed live browser smoke testing with zero console errors.
+- Cloudflare Pages production: `https://beadgridstudio.pages.dev/`; project `beadgridstudio`, production branch `main`, deployment `00fc08d6-c647-4ca8-af74-d0d2dc7488ff`, created 2026-07-16. `/`, `/privacy/`, `/terms/`, `/sitemap.xml`, and `/robots.txt` returned HTTP 200 on both the production alias and immutable deployment URL.
+- Production browser smoke: cell painting enabled undo, deferred local persistence wrote `bead-grid-studio-project-v1`, and all checked routes produced zero console errors.
 - Skill loaded: `frontend-site-automation` v2.3.0.
