@@ -20,10 +20,10 @@ afterEach(() => {
 });
 
 describe("downloadBlobInBrowser", () => {
-  it("removes the temporary anchor synchronously but defers object URL revocation", () => {
+  it("removes the temporary anchor synchronously but waits 1000ms before revoking the object URL", () => {
     let clickedAnchor: HTMLAnchorElement | undefined;
-    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function () {
-      clickedAnchor = document.querySelector('a[download="pattern.csv"]') ?? undefined;
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+      clickedAnchor = document.querySelector<HTMLAnchorElement>('a[download="pattern.csv"]') ?? undefined;
       expect(clickedAnchor).toBe(this);
       expect(this.isConnected).toBe(true);
     });
@@ -36,16 +36,20 @@ describe("downloadBlobInBrowser", () => {
     expect(clickedAnchor?.isConnected).toBe(false);
     expect(revokeObjectURL).not.toHaveBeenCalled();
 
-    vi.runOnlyPendingTimers();
+    vi.advanceTimersByTime(999);
+
+    expect(revokeObjectURL).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1);
 
     expect(revokeObjectURL).toHaveBeenCalledOnce();
     expect(revokeObjectURL).toHaveBeenCalledWith(objectUrl);
   });
 
-  it("removes the anchor and schedules deferred revocation when clicking fails", () => {
+  it("removes the anchor and revokes synchronously when clicking fails", () => {
     let clickedAnchor: HTMLAnchorElement | undefined;
-    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function () {
-      clickedAnchor = document.querySelector('a[download="pattern.png"]') ?? undefined;
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(function (this: HTMLAnchorElement) {
+      clickedAnchor = document.querySelector<HTMLAnchorElement>('a[download="pattern.png"]') ?? undefined;
       expect(clickedAnchor).toBe(this);
       expect(this.isConnected).toBe(true);
       throw new Error("click failed");
@@ -55,15 +59,15 @@ describe("downloadBlobInBrowser", () => {
 
     expect(clickedAnchor?.isConnected).toBe(false);
     expect(document.body.contains(clickedAnchor ?? null)).toBe(false);
-    expect(revokeObjectURL).not.toHaveBeenCalled();
+    expect(revokeObjectURL).toHaveBeenCalledOnce();
+    expect(revokeObjectURL).toHaveBeenCalledWith(objectUrl);
 
     vi.runOnlyPendingTimers();
 
     expect(revokeObjectURL).toHaveBeenCalledOnce();
-    expect(revokeObjectURL).toHaveBeenCalledWith(objectUrl);
   });
 
-  it("schedules deferred revocation when creating the anchor fails", () => {
+  it("revokes synchronously when creating the anchor fails", () => {
     vi.spyOn(document, "createElement").mockImplementation(() => {
       throw new Error("createElement failed");
     });
@@ -71,15 +75,15 @@ describe("downloadBlobInBrowser", () => {
     expect(() => downloadBlobInBrowser(new Blob(["pattern"]), "pattern.csv")).toThrow(
       "createElement failed",
     );
-    expect(revokeObjectURL).not.toHaveBeenCalled();
+    expect(revokeObjectURL).toHaveBeenCalledOnce();
+    expect(revokeObjectURL).toHaveBeenCalledWith(objectUrl);
 
     vi.runOnlyPendingTimers();
 
     expect(revokeObjectURL).toHaveBeenCalledOnce();
-    expect(revokeObjectURL).toHaveBeenCalledWith(objectUrl);
   });
 
-  it("schedules deferred revocation without removing the anchor when appending fails", () => {
+  it("revokes synchronously without removing the anchor when appending fails", () => {
     const anchor = document.createElement("a");
     const remove = vi.spyOn(anchor, "remove");
     vi.spyOn(document, "createElement").mockReturnValue(anchor);
@@ -89,11 +93,51 @@ describe("downloadBlobInBrowser", () => {
 
     expect(() => downloadBlobInBrowser(new Blob(["pattern"]), "pattern.csv")).toThrow("append failed");
     expect(remove).not.toHaveBeenCalled();
-    expect(revokeObjectURL).not.toHaveBeenCalled();
+    expect(revokeObjectURL).toHaveBeenCalledOnce();
+    expect(revokeObjectURL).toHaveBeenCalledWith(objectUrl);
 
     vi.runOnlyPendingTimers();
 
     expect(revokeObjectURL).toHaveBeenCalledOnce();
+  });
+
+  it("still delays revocation when clicking succeeds but removing the anchor fails", () => {
+    const anchor = document.createElement("a");
+    vi.spyOn(document, "createElement").mockReturnValue(anchor);
+    vi.spyOn(anchor, "click").mockImplementation(() => undefined);
+    vi.spyOn(anchor, "remove").mockImplementation(() => {
+      anchor.parentNode?.removeChild(anchor);
+      throw new Error("remove failed");
+    });
+
+    expect(() => downloadBlobInBrowser(new Blob(["pattern"]), "pattern.csv")).toThrow("remove failed");
+    expect(anchor.isConnected).toBe(false);
+    expect(revokeObjectURL).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(999);
+    expect(revokeObjectURL).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(1);
+    expect(revokeObjectURL).toHaveBeenCalledOnce();
     expect(revokeObjectURL).toHaveBeenCalledWith(objectUrl);
+  });
+
+  it("preserves the original click error when removing the anchor also fails", () => {
+    const anchor = document.createElement("a");
+    const clickError = new Error("click failed");
+    vi.spyOn(document, "createElement").mockReturnValue(anchor);
+    vi.spyOn(anchor, "click").mockImplementation(() => {
+      throw clickError;
+    });
+    vi.spyOn(anchor, "remove").mockImplementation(() => {
+      anchor.parentNode?.removeChild(anchor);
+      throw new Error("remove failed");
+    });
+
+    expect(() => downloadBlobInBrowser(new Blob(["pattern"]), "pattern.csv")).toThrow(clickError);
+    expect(revokeObjectURL).toHaveBeenCalledOnce();
+
+    vi.runOnlyPendingTimers();
+    expect(revokeObjectURL).toHaveBeenCalledOnce();
   });
 });

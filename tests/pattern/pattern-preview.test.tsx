@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { PatternPreview } from "../../src/components/PatternPreview";
 import type { PatternDocument } from "../../src/lib/pattern";
+import { calculatePrintCellSizeMm } from "../../src/lib/pattern/print-layout";
 
 function makeDocument(): PatternDocument {
   return {
@@ -43,6 +44,20 @@ function makeDocument(): PatternDocument {
 }
 
 describe("PatternPreview", () => {
+  it.each([
+    { width: 50, height: 50, limitingDimension: "width", expected: 3.48 },
+    { width: 10, height: 50, limitingDimension: "height", expected: 4.62 },
+    { width: 20, height: 50, limitingDimension: "height", expected: 4.62 },
+  ])("fits a $width x $height print grid within both page dimensions", ({ width, height, limitingDimension, expected }) => {
+    const size = calculatePrintCellSizeMm(width, height, 3);
+
+    expect(size).toBe(expected);
+    expect(6 + width * size).toBeLessThanOrEqual(180);
+    expect(3 + height * size).toBeLessThanOrEqual(234);
+    if (limitingDimension === "width") expect(6 + width * size).toBe(180);
+    else expect(3 + height * size).toBe(234);
+  });
+
   it("renders every section's row-major cells with accessible global coordinate labels", () => {
     render(<PatternPreview document={makeDocument()} />);
 
@@ -68,6 +83,20 @@ describe("PatternPreview", () => {
 
     const rangeHeader = screen.getByText("Columns 1–2").parentElement;
     expect(rangeHeader).toHaveClass("flex-wrap", "gap-x-4", "gap-y-1");
+  });
+
+  it("uses the same fixed bead track size for preview sections of different widths", () => {
+    const document = makeDocument();
+    document.sections.items[1].rect.width = 1;
+    render(<PatternPreview document={document} />);
+
+    const wideGrid = screen.getByLabelText("Sunset test section 1 grid, columns 1–2, rows 1–2").firstElementChild;
+    const narrowGrid = screen.getByLabelText("Sunset test section 2 grid, columns 3–3, rows 1–2").firstElementChild;
+
+    expect(wideGrid).toHaveStyle({ gridTemplateColumns: "repeat(2, 0.75rem)" });
+    expect(narrowGrid).toHaveStyle({ gridTemplateColumns: "repeat(1, 0.75rem)" });
+    expect(wideGrid).not.toHaveClass("min-w-[18rem]");
+    expect(narrowGrid).not.toHaveClass("min-w-[18rem]");
   });
 
   it("summarizes document settings and section bounds", () => {
@@ -100,6 +129,61 @@ describe("PatternPreview", () => {
     expect(sections[1]).toHaveTextContent("Columns 3–4 · Rows 1–2");
     expect(sections[1].querySelectorAll("[data-print-cell]")).toHaveLength(4);
     expect(sections[1].querySelector('[data-row="1"][data-column="4"]')).toHaveAttribute("data-color-name", "Ocean Blue");
+    expect((sections[0] as HTMLElement).style.getPropertyValue("--print-cell-size-mm")).toBe("87mm");
+  });
+
+  it("prints complete page context, assembly guidance, and a color-code legend on every section page", () => {
+    const { container } = render(<PatternPreview document={makeDocument()} />);
+    const sections = Array.from(container.querySelectorAll(".pattern-print-section"));
+
+    expect(sections).toHaveLength(2);
+    sections.forEach((section, index) => {
+      expect(section).toHaveTextContent("Sunset test");
+      expect(section).toHaveTextContent(`Page ${index + 1} of 2`);
+      expect(section).toHaveTextContent(/left to right, then top to bottom/i);
+      expect(section).toHaveTextContent(/overlap: 0 cells/i);
+      const legend = section.querySelector('[aria-label="Color legend"]');
+      expect(legend).not.toBeNull();
+      expect(legend).toHaveTextContent("1 Warm Red #CC1122");
+      expect(legend).toHaveTextContent("2 Ocean Blue #1133CC");
+    });
+  });
+
+  it("prints visible orientation guidance on every page and recommends the best fit", () => {
+    const document = makeDocument();
+    document.sections.items[1].printRect = { x: 2, y: 0, width: 2, height: 1 };
+    const { container } = render(<PatternPreview document={document} />);
+    const sections = Array.from(container.querySelectorAll(".pattern-print-section"));
+
+    expect(sections).toHaveLength(2);
+    expect(sections[0].querySelector(".pattern-print-orientation")).toHaveTextContent(/choose portrait orientation/i);
+    expect(sections[1].querySelector(".pattern-print-orientation")).toHaveTextContent(/choose landscape orientation/i);
+    sections.forEach((section) => {
+      expect(section.querySelector(".pattern-print-header .pattern-print-orientation")).toHaveTextContent(/verify.*print preview/i);
+    });
+  });
+
+  it("uses compact color-independent cell codes and separate axis labels for dark colors and 3-digit coordinates", () => {
+    const document = makeDocument();
+    document.settings.grid = { width: 500, height: 1 };
+    document.palette = [{ id: "dark", name: "Near Black", hex: "#010101", sortOrder: 0 }];
+    document.cells = Array.from({ length: 500 }, () => ({ paletteColorId: "dark" }));
+    document.counts = { byPaletteColor: [{ paletteColorId: "dark", beadCount: 500 }], totalBeads: 500 };
+    document.sections = {
+      layout: { maxColumnsPerSection: 50, maxRowsPerSection: 1, overlapCells: 0 },
+      items: [{ id: "large", order: 0, rect: { x: 450, y: 0, width: 50, height: 1 }, printRect: { x: 450, y: 0, width: 50, height: 1 } }],
+    };
+
+    const { container } = render(<PatternPreview document={document} />);
+    const printSection = container.querySelector(".pattern-print-section")!;
+    const cell = printSection.querySelector('[data-row="1"][data-column="500"]')!;
+    expect(cell).toHaveTextContent("1");
+    expect(cell).not.toHaveTextContent("500,1");
+    expect(cell.querySelector(".pattern-print-cell-code")).toHaveTextContent("1");
+    expect(printSection.querySelector('[data-column-label="500"]')).toHaveTextContent("500");
+    expect(printSection.querySelector('[data-row-label="1"]')).toHaveTextContent("1");
+    expect((printSection.querySelector(".pattern-print-grid") as HTMLElement).style.gridTemplateColumns)
+      .toBe("max-content repeat(50, var(--print-cell-size-mm))");
   });
 
   it("falls back safely for an unknown cell palette reference", () => {

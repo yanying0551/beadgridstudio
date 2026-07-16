@@ -1,13 +1,13 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import HowItWorksPage, { metadata as howMetadata } from "../../src/app/how-it-works/page";
-import PrintGuidePage from "../../src/app/print-guide/page";
-import BeadCountCalculatorPage from "../../src/app/bead-count-calculator/page";
-import FaqPage from "../../src/app/faq/page";
-import PrivacyPage from "../../src/app/privacy/page";
-import TermsPage from "../../src/app/terms/page";
-import DisclaimerPage from "../../src/app/disclaimer/page";
-import ContactPage from "../../src/app/contact/page";
+import PrintGuidePage, { metadata as printMetadata } from "../../src/app/print-guide/page";
+import BeadCountCalculatorPage, { metadata as calculatorMetadata } from "../../src/app/bead-count-calculator/page";
+import FaqPage, { metadata as faqMetadata } from "../../src/app/faq/page";
+import PrivacyPage, { metadata as privacyMetadata } from "../../src/app/privacy/page";
+import TermsPage, { metadata as termsMetadata } from "../../src/app/terms/page";
+import DisclaimerPage, { metadata as disclaimerMetadata } from "../../src/app/disclaimer/page";
+import ContactPage, { metadata as contactMetadata } from "../../src/app/contact/page";
 import robots from "../../src/app/robots";
 import sitemap from "../../src/app/sitemap";
 import { metadata as rootMetadata } from "../../src/app/layout";
@@ -55,6 +55,25 @@ describe("static route shell", () => {
     expect(rootMetadata.alternates?.canonical).toBe("/");
     expect(howMetadata.title).toBe("How to Make a Fuse Bead Pattern From a Photo | Bead Grid Studio");
     expect(howMetadata.alternates?.canonical).toBe("/how-it-works");
+  });
+
+  it.each([
+    [howMetadata, "/how-it-works"],
+    [printMetadata, "/print-guide"],
+    [calculatorMetadata, "/bead-count-calculator"],
+    [faqMetadata, "/faq"],
+    [privacyMetadata, "/privacy"],
+    [termsMetadata, "/terms"],
+    [disclaimerMetadata, "/disclaimer"],
+    [contactMetadata, "/contact"],
+  ] as const)("exports route-specific Open Graph metadata for %s", (routeMetadata, canonical) => {
+    expect(routeMetadata.openGraph).toEqual({
+      title: routeMetadata.title,
+      description: routeMetadata.description,
+      url: canonical,
+      type: "website",
+    });
+    expect(routeMetadata.openGraph).not.toEqual(rootMetadata.openGraph);
   });
 
   it("lists every public V1 route in the sitemap", () => {

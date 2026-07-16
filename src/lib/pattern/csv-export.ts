@@ -44,6 +44,8 @@ export function materialsToCsv(document: Pick<PatternDocument, "palette" | "cell
 }
 
 function csvField(value: string | number): string {
-  const text = String(value);
+  const text = typeof value === "string" && /^\s*[=+@-]/.test(value)
+    ? `'${value}`
+    : String(value);
   return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }

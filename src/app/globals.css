@@ -54,11 +54,6 @@ legend {
     width: 100%;
   }
 
-  .pattern-print-area > h1 {
-    margin: 0 0 6mm;
-    font-size: 18pt;
-  }
-
   .pattern-print-section {
     break-after: page;
     page-break-after: always;
@@ -69,27 +64,148 @@ legend {
     page-break-after: auto;
   }
 
-  .pattern-print-section h2,
-  .pattern-print-bounds {
-    margin: 0 0 3mm;
+  .pattern-print-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    margin-bottom: 3mm;
+  }
+
+  .pattern-print-header h1,
+  .pattern-print-header h2,
+  .pattern-print-header p {
+    margin: 0;
+  }
+
+  .pattern-print-header h1 {
+    font-size: 16pt;
+  }
+
+  .pattern-print-page {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pattern-print-header h2,
+  .pattern-print-bounds,
+  .pattern-print-orientation,
+  .pattern-print-guidance {
+    grid-column: 1 / -1;
+  }
+
+  .pattern-print-header h2 {
+    margin-top: 2mm;
+    font-size: 11pt;
+  }
+
+  .pattern-print-bounds,
+  .pattern-print-orientation,
+  .pattern-print-guidance {
+    font-size: 8pt;
   }
 
   .pattern-print-grid {
     display: grid;
-    width: min(100%, 180mm);
+    grid-template-columns: var(--pattern-print-columns);
+    width: max-content;
+    max-width: 180mm;
     border-top: 1px solid #334155;
     border-left: 1px solid #334155;
   }
 
+  .pattern-print-axis-corner,
+  .pattern-print-axis-label {
+    border-right: 1px solid #334155;
+    border-bottom: 1px solid #334155;
+    background: #fff;
+  }
+
+  .pattern-print-axis-label {
+    display: grid;
+    min-width: 0;
+    place-items: center;
+    overflow: visible;
+    font-size: 5pt;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .pattern-print-column-label {
+    width: var(--print-cell-size-mm);
+    height: 3mm;
+  }
+
+  .pattern-print-row-label {
+    width: 6mm;
+    height: var(--print-cell-size-mm);
+    padding: 0 0.5mm;
+  }
+
+  .pattern-print-axis-corner {
+    width: 6mm;
+    height: 3mm;
+  }
+
   .pattern-print-cell {
     display: grid;
-    aspect-ratio: 1;
-    min-width: 0;
+    width: var(--print-cell-size-mm);
+    height: var(--print-cell-size-mm);
     place-items: center;
     border-right: 1px solid #334155;
     border-bottom: 1px solid #334155;
-    color: #0f172a;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .pattern-print-cell-code {
+    display: inline-grid;
+    min-width: 1.8mm;
+    min-height: 1.8mm;
+    place-items: center;
+    border: 0.25mm solid #000;
+    border-radius: 50%;
+    background: #fff;
+    color: #000;
     font-size: 5pt;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .pattern-print-legend {
+    margin-top: 3mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    font-size: 7pt;
+  }
+
+  .pattern-print-legend h3 {
+    margin: 0 0 1mm;
+    font-size: 9pt;
+  }
+
+  .pattern-print-legend ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1mm 3mm;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pattern-print-legend li {
+    display: flex;
+    align-items: center;
+    gap: 1mm;
+    min-width: 0;
+  }
+
+  .pattern-print-legend-swatch {
+    width: 3mm;
+    height: 3mm;
+    flex: none;
+    border: 0.25mm solid #000;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }

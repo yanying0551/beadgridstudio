@@ -51,11 +51,15 @@ describe("patternToCsv", () => {
   ])("neutralizes formula payloads in pattern text fields: %s", (payload) => {
     const unsafe = structuredClone(document);
     unsafe.palette[0].name = payload;
-    unsafe.palette[0].hex = payload;
+    (unsafe.palette[0] as { hex: string }).hex = payload;
 
     const csv = patternToCsv(unsafe);
+    const neutralized = `'${payload}`;
+    const escaped = /[",\n\r]/.test(neutralized)
+      ? `"${neutralized.replaceAll('"', '""')}"`
+      : neutralized;
 
-    expect(csv).toContain(`'${payload}`);
+    expect(csv.split("\n")[1]).toBe(`1,1,${escaped},${escaped}`);
     expect(csv.split("\n")[1]).not.toMatch(/(?:^|,)\s*[=+@-]/);
   });
 });
@@ -79,7 +83,9 @@ describe("materialsToCsv", () => {
     "  =HYPERLINK(\"https://example.test\")",
   ])("neutralizes formula payloads in every exported material text field: %s", (payload) => {
     const unsafe = structuredClone(document);
-    unsafe.palette = [{ id: payload, name: payload, hex: payload, sortOrder: 0 }];
+    unsafe.palette = [
+      { id: payload, name: payload, hex: payload, sortOrder: 0 },
+    ] as unknown as PatternDocument["palette"];
     unsafe.cells = [{ paletteColorId: payload }];
 
     const materialRow = materialsToCsv(unsafe).split("\n")[1];

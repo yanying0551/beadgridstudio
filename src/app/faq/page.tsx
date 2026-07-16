@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ContentSection, StaticContentPage } from "../../components/StaticContentPage";
-export const metadata: Metadata = { title: "Fuse Bead Pattern Maker FAQ | Bead Grid Studio", description: "Answers about local image processing, printing, exports, bead counts, and brand independence.", alternates: { canonical: "/faq" } };
+export const metadata: Metadata = { title: "Fuse Bead Pattern Maker FAQ | Bead Grid Studio", description: "Answers about local image processing, printing, exports, bead counts, and brand independence.", alternates: { canonical: "/faq" }, openGraph: { title: "Fuse Bead Pattern Maker FAQ | Bead Grid Studio", description: "Answers about local image processing, printing, exports, bead counts, and brand independence.", url: "/faq", type: "website" } };
 const items = [
 ["Do I need an account?", "No. Bead Grid Studio does not require an account to create a pattern."],
 ["Is my image uploaded or stored?", "No. Your image is processed in your browser. Bead Grid Studio does not upload or store your photo on a server."],
