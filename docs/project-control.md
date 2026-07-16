@@ -66,7 +66,7 @@
 - P2: Accounts, sharing, cloud saves, and AI conversion are intentionally excluded from MVP until requested.
 
 ## Evidence ledger
-- Project repository: `/root/bead-grid-studio`, branch `master`.
-- GitHub remote: `https://github.com/yanying0551/beadgridstudio.git`; local `master` tracks `origin/main`; push verified at `e885737` on 2026-07-16.
+- Project repository: `/root/bead-grid-studio`, branch `main` tracking `origin/main`.
+- GitHub remote: `https://github.com/yanying0551/beadgridstudio.git`; push verified through commit `6d88f2a` on 2026-07-16.
 - Local preview routes return 200: `/`, `/privacy/`, `/terms/`, and `/sitemap.xml`.
 - Skill loaded: `frontend-site-automation` v2.3.0.
