@@ -19,9 +19,13 @@ interface StorageReader {
 }
 
 interface DrawingContext {
-  fillStyle: string;
+  canvas: { width: number; height: number };
+  fillStyle: unknown;
   clearRect(x: number, y: number, width: number, height: number): void;
   fillRect(x: number, y: number, width: number, height: number): void;
+  beginPath(): void;
+  arc(x: number, y: number, radius: number, startAngle: number, endAngle: number): void;
+  fill(): void;
 }
 
 export function createHistory(grid: Grid): History {
@@ -100,6 +104,8 @@ export function safeLoadProject(storage: StorageReader, key: string): { project:
 export function drawPng(context: DrawingContext, grid: Grid, background: 'transparent' | 'white'): { width: number; height: number } {
   const width = grid.length * PNG_CELL_SIZE;
   const height = grid.length * PNG_CELL_SIZE;
+  context.canvas.width = width;
+  context.canvas.height = height;
   context.clearRect(0, 0, width, height);
   if (background === 'white') {
     context.fillStyle = '#ffffff';
@@ -108,7 +114,15 @@ export function drawPng(context: DrawingContext, grid: Grid, background: 'transp
   grid.forEach((row, rowIndex) => row.forEach((color, colIndex) => {
     if (!color) return;
     context.fillStyle = color;
-    context.fillRect(colIndex * PNG_CELL_SIZE, rowIndex * PNG_CELL_SIZE, PNG_CELL_SIZE, PNG_CELL_SIZE);
+    context.beginPath();
+    context.arc(
+      colIndex * PNG_CELL_SIZE + PNG_CELL_SIZE / 2,
+      rowIndex * PNG_CELL_SIZE + PNG_CELL_SIZE / 2,
+      PNG_CELL_SIZE * 0.43,
+      0,
+      Math.PI * 2,
+    );
+    context.fill();
   }));
   return { width, height };
 }

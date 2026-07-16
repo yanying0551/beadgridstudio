@@ -61,29 +61,37 @@ describe('safe persistence', () => {
 });
 
 describe('deterministic PNG drawing', () => {
-  it('uses a fixed 64 pixels per bead and stable row-major fill order', () => {
+  function drawingContext(calls: unknown[][]) {
+    return {
+      canvas: { width: 0, height: 0 },
+      fillStyle: '',
+      clearRect: (...args: unknown[]) => calls.push(['clear', ...args]),
+      fillRect(...args: unknown[]) { calls.push(['rect', this.fillStyle, ...args]); },
+      beginPath: () => calls.push(['begin']),
+      arc: (...args: unknown[]) => calls.push(['arc', ...args]),
+      fill() { calls.push(['fill', this.fillStyle]); },
+    };
+  }
+
+  it('sizes the canvas at 64 pixels per bead and draws circles in stable row-major order', () => {
     const grid = createGrid(16);
     grid[0]![1] = '#112233';
     grid[2]![0] = '#abcdef';
     const calls: unknown[][] = [];
-    const context = {
-      fillStyle: '',
-      clearRect: (...args: unknown[]) => calls.push(['clear', ...args]),
-      fillRect(...args: unknown[]) { calls.push(['fill', this.fillStyle, ...args]); },
-    };
+    const context = drawingContext(calls);
     const dimensions = drawPng(context, grid, 'transparent');
     expect(dimensions).toEqual({ width: 1024, height: 1024 });
+    expect(context.canvas).toEqual({ width: 1024, height: 1024 });
     expect(calls).toEqual([
       ['clear', 0, 0, 1024, 1024],
-      ['fill', '#112233', 64, 0, 64, 64],
-      ['fill', '#abcdef', 0, 128, 64, 64],
+      ['begin'], ['arc', 96, 32, 27.52, 0, Math.PI * 2], ['fill', '#112233'],
+      ['begin'], ['arc', 32, 160, 27.52, 0, Math.PI * 2], ['fill', '#abcdef'],
     ]);
   });
 
   it('paints white first when requested', () => {
     const calls: unknown[][] = [];
-    const context = { fillStyle: '', clearRect() {}, fillRect(...args: unknown[]) { calls.push([this.fillStyle, ...args]); } };
-    drawPng(context, createGrid(24), 'white');
-    expect(calls[0]).toEqual(['#ffffff', 0, 0, 1536, 1536]);
+    drawPng(drawingContext(calls), createGrid(24), 'white');
+    expect(calls[1]).toEqual(['rect', '#ffffff', 0, 0, 1536, 1536]);
   });
 });

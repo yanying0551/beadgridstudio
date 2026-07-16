@@ -9,7 +9,7 @@ import {
   serializeProject,
   type Grid,
 } from './grid';
-import { interpolateCells, type CellPosition } from './runtime';
+import { drawPng, interpolateCells, type CellPosition } from './runtime';
 
 const STORAGE_KEY = 'bead-grid-studio-project-v1';
 const SIZES = [16, 24, 32] as const;
@@ -271,24 +271,11 @@ function download(blob: Blob, extension: string): void {
 }
 
 function exportPng(): void {
-  const scale = 40;
   const canvas = document.createElement('canvas');
-  canvas.width = grid.length * scale;
-  canvas.height = grid.length * scale;
   const context = canvas.getContext('2d');
   if (!context) return;
-  const background = document.querySelector<HTMLInputElement>('input[name="background"]:checked')?.value;
-  if (background === 'white') {
-    context.fillStyle = '#ffffff';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-  }
-  grid.forEach((row, r) => row.forEach((color, c) => {
-    if (!color) return;
-    context.fillStyle = color;
-    context.beginPath();
-    context.arc(c * scale + scale / 2, r * scale + scale / 2, scale * 0.43, 0, Math.PI * 2);
-    context.fill();
-  }));
+  const background = document.querySelector<HTMLInputElement>('input[name="background"]:checked')?.value === 'white' ? 'white' : 'transparent';
+  drawPng(context, grid, background);
   canvas.toBlob(blob => {
     if (blob) download(blob, 'png');
     pngDialog.close();
