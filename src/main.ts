@@ -9,7 +9,17 @@ import {
   serializeProject,
   type Grid,
 } from './grid';
-import { drawPng, interpolateCells, type CellPosition } from './runtime';
+import {
+  createDeferredPersistence,
+  createHistory,
+  drawPng,
+  interpolateCells,
+  pushHistory,
+  redoHistory,
+  safeLoadProject,
+  undoHistory,
+  type CellPosition,
+} from './runtime';
 
 const STORAGE_KEY = 'bead-grid-studio-project-v1';
 const SIZES = [16, 24, 32] as const;
@@ -54,35 +64,41 @@ let grid: Grid = createGrid(24);
 let tool: Tool = 'paint';
 let selectedColor: string = COLORS[0][1];
 let selectedColorName: string = COLORS[0][0];
-let undoStack: Grid[] = [];
-let redoStack: Grid[] = [];
+let history = createHistory(grid);
 let drawing = false;
 let strokeStart: Grid | null = null;
 let strokeChanged = false;
 let lastPainted = '';
 let lastPosition: CellPosition | null = null;
-let saveTimer: number | undefined;
 
 function setStatus(message: string): void {
   saveStatus.textContent = message;
 }
 
+function saveProject(): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeProject(projectName.value, grid)));
+    setStatus('Saved locally');
+  } catch {
+    setStatus('Could not save locally');
+  }
+}
+
+const persistence = createDeferredPersistence(
+  saveProject,
+  (callback, delay) => window.setTimeout(callback, delay),
+  timer => window.clearTimeout(timer),
+  250,
+);
+
 function saveSoon(): void {
   setStatus('Saving…');
-  window.clearTimeout(saveTimer);
-  saveTimer = window.setTimeout(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(serializeProject(projectName.value, grid)));
-      setStatus('Saved locally');
-    } catch {
-      setStatus('Could not save locally');
-    }
-  }, 250);
+  persistence.schedule();
 }
 
 function updateHistoryButtons(): void {
-  undoButton.disabled = undoStack.length === 0;
-  redoButton.disabled = redoStack.length === 0;
+  undoButton.disabled = history.past.length === 0;
+  redoButton.disabled = history.future.length === 0;
 }
 
 function updateStats(): void {
@@ -222,9 +238,7 @@ function endStroke(event: PointerEvent): void {
   drawing = false;
   if (gridElement.hasPointerCapture(event.pointerId)) gridElement.releasePointerCapture(event.pointerId);
   if (strokeChanged && strokeStart) {
-    undoStack.push(strokeStart);
-    if (undoStack.length > 100) undoStack.shift();
-    redoStack = [];
+    history = pushHistory(history, grid);
     updateHistoryButtons();
     saveSoon();
   }
@@ -234,28 +248,26 @@ function endStroke(event: PointerEvent): void {
 }
 
 function undo(): void {
-  const previous = undoStack.pop();
-  if (!previous) return;
-  redoStack.push(cloneGrid(grid));
-  grid = previous;
+  const next = undoHistory(history);
+  if (next === history) return;
+  history = next;
+  grid = cloneGrid(history.current);
   renderGrid();
   saveSoon();
 }
 
 function redo(): void {
-  const next = redoStack.pop();
-  if (!next) return;
-  undoStack.push(cloneGrid(grid));
-  grid = next;
+  const next = redoHistory(history);
+  if (next === history) return;
+  history = next;
+  grid = cloneGrid(history.current);
   renderGrid();
   saveSoon();
 }
 
 function commitGrid(next: Grid): void {
-  undoStack.push(cloneGrid(grid));
-  if (undoStack.length > 100) undoStack.shift();
-  redoStack = [];
-  grid = next;
+  history = pushHistory(history, next);
+  grid = cloneGrid(history.current);
   renderGrid();
   saveSoon();
 }
@@ -287,17 +299,13 @@ function openDialog(dialog: HTMLDialogElement): void {
 }
 
 makePalette();
-try {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored) {
-    const project = parseProject(stored);
-    grid = cloneGrid(project.cells);
-    projectName.value = project.name;
-  }
-} catch {
-  localStorage.removeItem(STORAGE_KEY);
-  setStatus('Saved project was invalid');
+const saved = safeLoadProject(() => localStorage, STORAGE_KEY);
+if (saved.project) {
+  grid = cloneGrid(saved.project.cells);
+  history = createHistory(grid);
+  projectName.value = saved.project.name;
 }
+if (saved.error) setStatus(saved.error);
 renderGrid();
 
 paintButton.addEventListener('click', () => selectTool('paint'));
@@ -309,6 +317,7 @@ gridElement.addEventListener('pointermove', moveStroke);
 gridElement.addEventListener('pointerup', endStroke);
 gridElement.addEventListener('pointercancel', endStroke);
 projectName.addEventListener('input', saveSoon);
+window.addEventListener('pagehide', persistence.flush);
 
 document.querySelectorAll<HTMLButtonElement>('[data-size]').forEach(button => {
   button.classList.toggle('active', Number(button.dataset.size) === grid.length);
@@ -337,9 +346,8 @@ importFile.addEventListener('change', async () => {
   if (!file) return;
   try {
     const project = parseProject(await file.text());
-    undoStack.push(cloneGrid(grid));
-    redoStack = [];
-    grid = cloneGrid(project.cells);
+    history = pushHistory(history, project.cells);
+    grid = cloneGrid(history.current);
     projectName.value = project.name;
     document.querySelectorAll<HTMLButtonElement>('[data-size]').forEach(button => button.classList.toggle('active', Number(button.dataset.size) === grid.length));
     renderGrid();

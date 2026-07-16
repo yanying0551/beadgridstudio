@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createGrid } from './grid';
 import {
+  createDeferredPersistence,
   createHistory,
   drawPng,
   interpolateCells,
@@ -54,9 +55,69 @@ describe('pointer helpers', () => {
 describe('safe persistence', () => {
   it('returns a valid saved project and reports malformed or unavailable storage', () => {
     const project = JSON.stringify({ version: 1, name: 'Saved', size: 16, cells: createGrid(16), updatedAt: '2026-07-15T12:00:00.000Z' });
-    expect(safeLoadProject({ getItem: () => project }, 'key').project?.name).toBe('Saved');
-    expect(safeLoadProject({ getItem: () => '{oops' }, 'key')).toEqual({ project: null, error: 'Saved project was invalid and was ignored.' });
-    expect(safeLoadProject({ getItem: () => { throw new Error('denied'); } }, 'key')).toEqual({ project: null, error: 'Local storage is unavailable.' });
+    expect(safeLoadProject(() => ({ getItem: () => project }), 'key').project?.name).toBe('Saved');
+    expect(safeLoadProject(() => ({ getItem: () => '{oops' }), 'key')).toEqual({ project: null, error: 'Saved project was invalid and was ignored.' });
+    expect(safeLoadProject(() => ({ getItem: () => { throw new Error('denied'); } }), 'key')).toEqual({ project: null, error: 'Local storage is unavailable.' });
+  });
+
+  it('reports unavailable storage when acquiring the storage object throws', () => {
+    expect(safeLoadProject(() => { throw new DOMException('denied', 'SecurityError'); }, 'key')).toEqual({
+      project: null,
+      error: 'Local storage is unavailable.',
+    });
+  });
+
+  it('flushes the latest pending save synchronously and cancels its timer without saving twice', () => {
+    let latest = 'first';
+    const saved: string[] = [];
+    const timers = new Map<number, () => void>();
+    let nextTimer = 0;
+    const persistence = createDeferredPersistence(
+      () => saved.push(latest),
+      callback => {
+        const timer = ++nextTimer;
+        timers.set(timer, callback);
+        return timer;
+      },
+      timer => timers.delete(timer),
+      250,
+    );
+
+    persistence.schedule();
+    latest = 'latest';
+    persistence.schedule();
+    expect(timers.size).toBe(1);
+
+    persistence.flush();
+    expect(saved).toEqual(['latest']);
+    expect(timers.size).toBe(0);
+
+    timers.forEach(callback => callback());
+    expect(saved).toEqual(['latest']);
+  });
+
+  it('ignores a superseded timer callback that was already queued', () => {
+    const saved: string[] = [];
+    const timers = new Map<number, () => void>();
+    let nextTimer = 0;
+    const persistence = createDeferredPersistence(
+      () => saved.push('saved'),
+      callback => {
+        const timer = ++nextTimer;
+        timers.set(timer, callback);
+        return timer;
+      },
+      () => {},
+      250,
+    );
+
+    persistence.schedule();
+    persistence.schedule();
+    timers.get(1)?.();
+    expect(saved).toEqual([]);
+
+    timers.get(2)?.();
+    expect(saved).toEqual(['saved']);
   });
 });
 

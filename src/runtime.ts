@@ -18,6 +18,11 @@ interface StorageReader {
   getItem(key: string): string | null;
 }
 
+export interface DeferredPersistence {
+  schedule(): void;
+  flush(): void;
+}
+
 interface DrawingContext {
   canvas: { width: number; height: number };
   fillStyle: unknown;
@@ -87,9 +92,9 @@ export function interpolateCells(from: CellPosition, to: CellPosition): CellPosi
   return cells;
 }
 
-export function safeLoadProject(storage: StorageReader, key: string): { project: ProjectData | null; error?: string } {
+export function safeLoadProject(getStorage: () => StorageReader, key: string): { project: ProjectData | null; error?: string } {
   try {
-    const saved = storage.getItem(key);
+    const saved = getStorage().getItem(key);
     if (saved === null) return { project: null };
     try {
       return { project: parseProject(saved) };
@@ -99,6 +104,35 @@ export function safeLoadProject(storage: StorageReader, key: string): { project:
   } catch {
     return { project: null, error: 'Local storage is unavailable.' };
   }
+}
+
+export function createDeferredPersistence(
+  save: () => void,
+  setTimer: (callback: () => void, delay: number) => number,
+  clearTimer: (timer: number) => void,
+  delay: number,
+): DeferredPersistence {
+  let pendingTimer: number | undefined;
+  let generation = 0;
+
+  return {
+    schedule() {
+      if (pendingTimer !== undefined) clearTimer(pendingTimer);
+      const scheduledGeneration = ++generation;
+      pendingTimer = setTimer(() => {
+        if (pendingTimer === undefined || scheduledGeneration !== generation) return;
+        pendingTimer = undefined;
+        save();
+      }, delay);
+    },
+    flush() {
+      if (pendingTimer === undefined) return;
+      clearTimer(pendingTimer);
+      pendingTimer = undefined;
+      generation += 1;
+      save();
+    },
+  };
 }
 
 export function drawPng(context: DrawingContext, grid: Grid, background: 'transparent' | 'white'): { width: number; height: number } {
