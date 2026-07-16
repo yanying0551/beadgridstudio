@@ -52,9 +52,9 @@
 ## Work queue
 | ID | Task | Status | Dependency |
 |---|---|---|---|
-| BGS-001 | Draft MVP PRD | READY | — |
-| BGS-002 | Draft Route Contract | READY | BGS-001 |
-| BGS-003 | Draft SEO and page copy | BLOCKED | BGS-001/002 |
+| BGS-001 | Draft MVP PRD | NEEDS_REVIEW | Owner approval |
+| BGS-002 | Draft Route Contract | NEEDS_REVIEW | Owner approval |
+| BGS-003 | Draft SEO and page copy | NEEDS_REVIEW | Owner/SEO/legal approval |
 | BGS-004 | Establish visual direction | BLOCKED | owner input |
 | BGS-005 | Scaffold frontend | DONE | BGS-001/002/004 |
 | BGS-006 | Implement editor core using TDD | DONE | BGS-005 |
@@ -70,6 +70,7 @@
 - P2: Accounts, sharing, cloud saves, and AI conversion are intentionally excluded from MVP until requested.
 
 ## Evidence ledger
+- Product control drafts: `docs/mvp-prd.md`, `docs/route-contract.md`, and `docs/seo-copy-freeze.md`; all are grounded in shipped behavior and remain `NEEDS_REVIEW` rather than approved.
 - Project repository: `/root/bead-grid-studio`, branch `main` tracking `origin/main`.
 - GitHub remote: `https://github.com/yanying0551/beadgridstudio.git`; `main` push synchronization verified on 2026-07-16.
 - Local preview routes return 200: `/`, `/privacy/`, `/terms/`, and `/sitemap.xml`.
