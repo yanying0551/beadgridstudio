@@ -4,7 +4,7 @@
 
 ## Status
 - Overall: NEEDS REVIEW
-- Current gate: Owner review / deployment readiness
+- Current gate: Cloudflare credential readiness
 - Production launch: BLOCKED
 - Last updated: 2026-07-16
 
@@ -17,12 +17,12 @@
 - Spec compliance review: PASS after correcting the local-autosave disclosure.
 - Code quality review: APPROVED after adding keyboard-operable grid controls and hosting/CDN privacy disclosure.
 - Desktop visual review: PASS with no clipping, overlap, or horizontal overflow; footer link styling was corrected after review.
-- Responsive breakpoints and touch-oriented sizing are implemented; a dedicated mobile-device/touch screenshot remains pending.
+- Responsive breakpoints and touch-oriented sizing are implemented; 390×844 mobile emulation screenshots for the editor, privacy page, and terms page pass visual review.
 - `npm audit --omit=dev`: PASS, 0 production vulnerabilities.
 
 ## Verification blockers / known issues
 - P0: Production launch still requires owner approval, Cloudflare credentials, and explicit confirmation before public deployment or DNS changes. GitHub remote/push access is ready.
-- P1: Dedicated mobile-device/touch screenshot evidence remains required before production GO.
+- Mobile QA: PASS at a true 390×844 emulated viewport. All three routes reported `scrollWidth = clientWidth = 390`, no overflowing elements, and no visual clipping or overlap.
 - P1: Analytics is intentionally absent; if analytics is added, privacy copy and consent requirements must be revisited before launch.
 - P2: Development dependency audit previously reported advisories; production dependency audit is clean.
 
@@ -41,7 +41,7 @@
 - [ ] Data contract approved or explicitly not required
 - [x] Implementation passes tests/build
 - [ ] PM/SEO/compliance review
-- [ ] Mobile and browser QA
+- [x] Mobile and browser QA
 - [ ] Owner review
 - [ ] Production deploy (explicit confirmation required)
 - [ ] Post-launch data review
@@ -56,7 +56,7 @@
 | BGS-005 | Scaffold frontend | DONE | BGS-001/002/004 |
 | BGS-006 | Implement editor core using TDD | DONE | BGS-005 |
 | BGS-007 | SEO/legal surfaces; analytics explicitly deferred | DONE | BGS-003/005 |
-| BGS-008 | QA and evidence pack | IN REVIEW | BGS-006/007 |
+| BGS-008 | QA and evidence pack | DONE | BGS-006/007 |
 | BGS-009 | Push/deploy/smoke test | IN PROGRESS | GitHub push done; Cloudflare credentials + owner deployment confirmation pending |
 
 ## Risks
@@ -69,4 +69,5 @@
 - Project repository: `/root/bead-grid-studio`, branch `main` tracking `origin/main`.
 - GitHub remote: `https://github.com/yanying0551/beadgridstudio.git`; push verified through commit `6d88f2a` on 2026-07-16.
 - Local preview routes return 200: `/`, `/privacy/`, `/terms/`, and `/sitemap.xml`.
+- Mobile evidence: `qa-evidence/mobile/home-390x844.png`, `privacy-390x844.png`, and `terms-390x844.png`; CDP device metrics confirmed a 390×844 mobile viewport with zero horizontal overflow.
 - Skill loaded: `frontend-site-automation` v2.3.0.
