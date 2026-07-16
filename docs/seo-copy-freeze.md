@@ -44,7 +44,7 @@ The strings above match the current production source and are frozen against cas
 ### Benefits
 1. `Draw quickly` — `Click or drag across a responsive grid built for mouse, pen, and touch.`
 2. `Plan precisely` — `Mirror designs and get an instant count for every bead color.`
-3. `Keep your work` — `Autosave locally, exchange JSON files, or export print-ready PNG art.`
+3. `Keep your work` — `Autosave locally, exchange JSON files, or export a high-resolution PNG crafting guide.`
 
 ### FAQ
 - `Is Bead Grid Studio free?` — `Yes. The editor runs entirely in your browser with no account or subscription.`
@@ -77,12 +77,12 @@ No invented metrics, testimonials, endorsements, “best” claim, artificial ur
 
 **Assessment:** Defensible only when read with the Privacy page: project content stays local, while hosting/CDN/font requests still occur. Retain for now, but owner should decide whether the privacy proposition warrants removing Google Fonts.
 
-### `print-ready PNG art`
-**Current use:** “Keep your work” benefit.
+### `high-resolution PNG crafting guide`
+**Current use:** “Keep your work” benefit; approved replacement is now shipped.
 
 **Risk:** May imply calibrated physical dimensions, pagination, or guaranteed print/color fidelity, which the product does not provide.
 
-**Recommended frozen replacement:**
+**Approved frozen wording:**
 
 `Autosave locally, exchange JSON files, or export a high-resolution PNG crafting guide.`
 
@@ -153,7 +153,7 @@ Do not publish without evidence/review:
 - Do not replace specific control labels with ambiguous labels such as “Create” or “Download.”
 - Keep Privacy and Terms linked site-wide.
 - Keep canonical/Open Graph/schema URLs synchronized with the live origin.
-- If the recommended `print-ready` correction is accepted, update source and any exact-copy tests together.
+- The approved `print-ready` correction must remain synchronized with source and exact-copy tests.
 
 ## 10. Approval checklist
 
@@ -161,7 +161,7 @@ Do not publish without evidence/review:
 - [ ] Owner confirms pixel art as secondary rather than equal positioning.
 - [ ] Owner approves “free” and no-account positioning.
 - [ ] Owner accepts or replaces `private-in-your-browser`.
-- [ ] Owner approves changing `print-ready PNG art` to `high-resolution PNG crafting guide`.
+- [x] Owner approves changing `print-ready PNG art` to `high-resolution PNG crafting guide`.
 - [ ] Owner approves titles, descriptions, H1, benefit blocks, FAQ, and CTA labels.
 - [ ] Owner approves current Pages origin or supplies the connected custom domain.
 - [ ] Legal/operator review covers Privacy and Terms.

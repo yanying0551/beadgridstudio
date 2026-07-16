@@ -90,6 +90,12 @@ describe('production SEO origin', () => {
     expect(sitemapDirectives).toEqual([`${productionOrigin}/sitemap.xml`]);
   });
 
+  it('uses copy that does not imply calibrated print output', () => {
+    const home = projectFile('index.html');
+    expect(home).toContain('export a high-resolution PNG crafting guide.');
+    expect(home).not.toContain('print-ready PNG art');
+  });
+
   it('publishes the social preview image referenced by Open Graph metadata', () => {
     expect(existsSync(resolve(process.cwd(), 'public/og-image.png'))).toBe(true);
   });
