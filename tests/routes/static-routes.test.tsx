@@ -8,8 +8,8 @@ import PrivacyPage, { metadata as privacyMetadata } from "../../src/app/privacy/
 import TermsPage, { metadata as termsMetadata } from "../../src/app/terms/page";
 import DisclaimerPage, { metadata as disclaimerMetadata } from "../../src/app/disclaimer/page";
 import ContactPage, { metadata as contactMetadata } from "../../src/app/contact/page";
-import robots from "../../src/app/robots";
-import sitemap from "../../src/app/sitemap";
+import robots, { dynamic as robotsDynamic } from "../../src/app/robots";
+import sitemap, { dynamic as sitemapDynamic } from "../../src/app/sitemap";
 import { metadata as rootMetadata } from "../../src/app/layout";
 
 const routes = [
@@ -80,6 +80,11 @@ describe("static route shell", () => {
       type: "website",
     });
     expect(routeMetadata.openGraph).not.toEqual(rootMetadata.openGraph);
+  });
+
+  it("marks metadata routes as static for the Cloudflare export", () => {
+    expect(robotsDynamic).toBe("force-static");
+    expect(sitemapDynamic).toBe("force-static");
   });
 
   it("lists every public V1 route in the sitemap", () => {
